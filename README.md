@@ -1,5 +1,7 @@
 # Json AnyDataset
 
+[![Build Status](https://travis-ci.org/byjg/anydataset-json.svg?branch=master)](https://travis-ci.org/byjg/anydataset-json)
+
 ## Description
 
 JSON abstraction dataset. Anydataset is an agnostic data source abstraction layer in PHP. 
