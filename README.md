@@ -46,9 +46,7 @@ foreach ($iterator as $row) {
 
 Just type: `composer require "byjg/anydataset-json=4.0.*"`
 
-#### Running Unit tests
-
-Running the Unit tests
+## Running the Unit tests
 
 ```php
 vendor/bin/phpunit

@@ -2,6 +2,7 @@
 
 namespace ByJG\AnyDataset\Json;
 
+use ByJG\AnyDataset\Core\GenericIterator;
 use ByJG\AnyDataset\Core\Exception\DatasetException;
 
 class JsonDataset
@@ -56,11 +57,10 @@ class JsonDataset
      * @param string $path
      * @param bool $throwErr
      * @return GenericIterator
-     * @throws \ByJG\AnyDataset\Exception\IteratorException
+     * @throws \ByJG\AnyDataset\Core\Exception\IteratorException
      */
     public function getIterator($path = "", $throwErr = false)
     {
-        $iterator = new JsonIterator($this->jsonObject, $path, $throwErr);
-        return $iterator;
+        return new JsonIterator($this->jsonObject, $path, $throwErr);
     }
 }
