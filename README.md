@@ -1,17 +1,16 @@
-# Json AnyDataset
+# AnyDataset-Json
 
 [![Opensource ByJG](https://img.shields.io/badge/opensource-byjg.com-brightgreen.svg)](http://opensource.byjg.com)
 [![Build Status](https://travis-ci.org/byjg/anydataset-json.svg?branch=master)](https://travis-ci.org/byjg/anydataset-json)
 
-## Description
 
 JSON abstraction dataset. Anydataset is an agnostic data source abstraction layer in PHP. 
 
-See more about Anydataset [here](https://github.com/byjg/anydataset).
+See more about Anydataset [here](https://opensource.byjg.com/anydataset).
 
-## Examples
+# Examples
 
-### Simple Manipulation
+## Simple Manipulation
 
 ```php
 <?php
@@ -27,7 +26,7 @@ foreach ($iterator as $row) {
 }
 ```
 
-### Specific Path
+## Specific Path
 
 ```php
 <?php
@@ -42,11 +41,11 @@ foreach ($iterator as $row) {
 }
 ```
 
-## Install
+# Install
 
 Just type: `composer require "byjg/anydataset-json=4.0.*"`
 
-## Running the Unit tests
+# Running the Unit tests
 
 ```php
 vendor/bin/phpunit

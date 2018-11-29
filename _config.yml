@@ -1,0 +1,53 @@
+name: anydataset-json
+
+project:
+  version: 4.0.0
+  download_url: https://github.com/byjg/anydataset-json/releases
+
+license:
+  software: MIT
+  software_url: https://opensource.org/licenses/MIT
+  
+  docs: MIT
+  docs_url: https://opensource.org/licenses/MIT
+  
+git_edit_address: https://github.com/byjg/anydataset-json/blob/master/
+
+links:
+  header:
+  - title: GitHub
+    url: https://github.com/byjg/anydataset-json
+  - title: ByJG
+    url: https://opensource.byjg.com/
+  footer:
+  - title: GitHub
+    url: https://github.com/byjg/anydataset-json
+  - title: Issues
+    url: https://github.com/byjg/anydataset-json/issues
+
+ui:
+  header:
+    color1: "#080331"
+    color2: "#0033cc"
+    trianglify: true
+
+social:
+  github:
+    user: byjg
+    repo: anydataset-json
+  twitter:
+    enabled: false
+    via: 
+    hash: opensourcebyjg
+    account: 
+  facebook:
+    enabled: false
+    profileUrl:
+
+analytics:
+  google: UA-130014324-1
+
+# Build settings
+markdown: kramdown
+remote_theme: allejo/jekyll-docs-theme
+
