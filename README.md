@@ -1,6 +1,9 @@
 # AnyDataset-Json
 
-[![Opensource ByJG](https://img.shields.io/badge/opensource-byjg.com-brightgreen.svg)](http://opensource.byjg.com)
+[![Opensource ByJG](https://img.shields.io/badge/opensource-byjg-success.svg)](http://opensource.byjg.com)
+[![GitHub source](https://img.shields.io/badge/Github-source-informational?logo=github)](https://github.com/byjg/anydataset-json/)
+[![GitHub license](https://img.shields.io/github/license/byjg/anydataset-json.svg)](https://opensource.byjg.com/opensource/licensing.html)
+[![GitHub release](https://img.shields.io/github/release/byjg/anydataset-json.svg)](https://github.com/byjg/anydataset-json/releases/)
 [![Build Status](https://travis-ci.org/byjg/anydataset-json.svg?branch=master)](https://travis-ci.org/byjg/anydataset-json)
 
 
@@ -8,9 +11,9 @@ JSON abstraction dataset. Anydataset is an agnostic data source abstraction laye
 
 See more about Anydataset [here](https://opensource.byjg.com/anydataset).
 
-# Examples
+## Examples
 
-## Simple Manipulation
+### Simple Manipulation
 
 ```php
 <?php
@@ -26,7 +29,7 @@ foreach ($iterator as $row) {
 }
 ```
 
-## Specific Path
+### Specific Path
 
 ```php
 <?php
@@ -41,13 +44,13 @@ foreach ($iterator as $row) {
 }
 ```
 
-# Install
+## Install
 
 Just type: `composer require "byjg/anydataset-json=4.0.*"`
 
-# Running the Unit tests
+## Running the Unit tests
 
-```php
+```bash
 vendor/bin/phpunit
 ```
 
