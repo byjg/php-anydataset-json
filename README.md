@@ -51,7 +51,11 @@ $json = '{"menu": {"header": "SVG Viewer", "items": [ {"id": "Open", "metadata":
 
 $dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
 
-$iterator = $dataset->getIterator("/menu/items")->withFields(["name" => "id", "version" => "metadata/version"]);
+$iterator = $dataset->getIterator("/menu/items")
+                        ->withFields([
+                            "name" => "id",
+                            "version" => "metadata/version"
+                        ]);
 foreach ($iterator as $row) {
     echo $row->get('name');       // Print "Open", "OpenNew"
     echo $row->get('version');    // Print "1", "2"
@@ -70,3 +74,4 @@ vendor/bin/phpunit
 
 ----
 [Open source ByJG](http://opensource.byjg.com)
+k

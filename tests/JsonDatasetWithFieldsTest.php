@@ -12,6 +12,7 @@ class JsonDatasetWithFieldsTest extends TestCase
 
     const JSON_OK = '{"menu": {"header": "SVG Viewer", "items": [ {"id": "Open", "metadata": {"version": "1", "date": "NA"} }, {"id": "OpenNew", "label": "Open New", "metadata": {"version": "2", "date": "2021-10-01"}} ]}}';
 
+    protected $iterator;
     protected $arrTest = array();
 
     // Run before each test case
@@ -20,48 +21,48 @@ class JsonDatasetWithFieldsTest extends TestCase
         $this->arrTest = array();
         $this->arrTest[] = array("name" => "Open", "version" => "1");
         $this->arrTest[] = array("name" => "OpenNew", "version" => "2");
+
+        $jsonDataset = new JsonDataset(JsonDatasetWithFieldsTest::JSON_OK);
+        $this->iterator = $jsonDataset->getIterator("/menu/items")->withFields(["name" => "id", "version" => "metadata/version"]);
     }
 
     // Run end each test case
     public function teardown()
     {
-
+        $this->iterator = null;
     }
 
     public function testcreateJsonIterator()
     {
-        $jsonDataset = new JsonDataset(JsonDatasetTest::JSON_OK);
-        $jsonIterator = $jsonDataset->getIterator("/menu/items")->withFields(["name" => "id", "version" => "metadata/version"]);
-
-        $this->assertTrue($jsonIterator instanceof IteratorInterface); //, "Resultant object must be an interator");
-        $this->assertTrue($jsonIterator->hasNext()); // "hasNext() method must be true");
-        $this->assertEquals($jsonIterator->Count(), 2); //, "Count() method must return 2");
+        $this->assertTrue($this->iterator instanceof IteratorInterface); //, "Resultant object must be an interator");
+        $this->assertTrue($this->iterator->hasNext()); // "hasNext() method must be true");
+        $this->assertEquals(2, $this->iterator->Count()); //, "Count() method must return 2");
     }
 
     public function testnavigateJsonIterator()
     {
-        $jsonDataset = new JsonDataset(JsonDatasetTest::JSON_OK);
-        $jsonIterator = $jsonDataset->getIterator("/menu/items")->withFields(["name" => "id", "version" => "metadata/version"]);
-
         $count = 0;
-        while ($jsonIterator->hasNext()) {
-            $this->assertSingleRow($jsonIterator->moveNext(), $count++);
+        while ($this->iterator->hasNext()) {
+            $this->assertSingleRow($this->iterator->moveNext(), $count++);
         }
 
-        $this->assertEquals($jsonIterator->count(), 2); //, "Count() method must return 3");
+        $this->assertEquals(2, $this->iterator->count(), 2); //, "Count() method must return 2");
     }
 
     public function testnavigateJsonIterator2()
     {
-        $jsonDataset = new JsonDataset(JsonDatasetTest::JSON_OK);
-        $jsonIterator = $jsonDataset->getIterator("/menu/items")->withFields(["name" => "id", "version" => "metadata/version"]);
+        $this->assertEquals($this->arrTest, $this->iterator->toArray());
+    }
 
-        $count = 0;
-        foreach ($jsonIterator as $sr) {
-            $this->assertSingleRow($sr, $count++);
-        }
+    public function testNonExistentFieldDefinition()
+    {
+        $jsonDataset = new JsonDataset(JsonDatasetWithFieldsTest::JSON_OK);
+        $iterator = $jsonDataset->getIterator("/menu/items")->withFields(["name" => "none", "version" => "metadata/version/nonexistantfield"]);
 
-        $this->assertEquals($jsonIterator->count(), 2); //, "Count() method must return 3");
+        $this->assertEquals([
+            ["name" => null, "version" => null],
+            ["name" => null, "version" => null]
+        ], $iterator->toArray());
     }
 
     /**
