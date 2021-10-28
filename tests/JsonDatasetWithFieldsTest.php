@@ -54,6 +54,18 @@ class JsonDatasetWithFieldsTest extends TestCase
         $this->assertEquals($this->arrTest, $this->iterator->toArray());
     }
 
+    public function testArrayFieldDefinition()
+    {
+        $jsonDataset = new JsonDataset('{"menu": {"header": "SVG Viewer", "items": [ {"id": "Open", "metadata": [{"version": "1", "date": "NA"}, {"version": "beta", "date": "soon"}] }, {"id": "OpenNew", "label": "Open New", "metadata": [{"version": "2", "date": "2021-10-01"}] } ]}}');
+
+        $iterator = $jsonDataset->getIterator("/menu/items")->withFields(["name" => "id", "version" => "metadata/*/version"]);
+
+        $this->assertEquals([
+            ["name" => "Open", "version" => ["1", "beta"]],
+            ["name" => "OpenNew", "version" => ["2"]]
+        ], $iterator->toArray());
+    }
+
     public function testNonExistentFieldDefinition()
     {
         $jsonDataset = new JsonDataset(JsonDatasetWithFieldsTest::JSON_OK);

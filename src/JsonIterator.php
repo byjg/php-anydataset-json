@@ -105,19 +105,32 @@ class JsonIterator extends GenericIterator
 
         $valueList = [];
         foreach ($this->fieldDefinition as $field => $path) {
-            $value = $jsonObject;
             $pathList = preg_split("~/~", $path);
-            foreach ($pathList as $pathElement) {
-                if (!isset($value[$pathElement])) {
-                    $value = null;
-                    break;
-                }
-                $value = $value[$pathElement];
-            }
-            $valueList[$field] = $value;
+            $valueList[$field] = $this->parseField($jsonObject, $pathList);
         }
 
         return $valueList;
+    }
+
+    private function parseField($record, $pathList)
+    {
+        $value = $record;
+        while($pathElement = array_shift($pathList)) {
+            if ($pathElement == "*") {
+                $result = [];
+                foreach ($value as $item) {
+                    $result[] = $this->parseField($item, $pathList);
+                }
+                $value = $result;
+                break;
+            }
+            if (!isset($value[$pathElement])) {
+                $value = null;
+                break;
+            }
+            $value = $value[$pathElement];
+        }
+        return $value;
     }
 
     public function key()
