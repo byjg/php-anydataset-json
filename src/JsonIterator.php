@@ -22,6 +22,8 @@ class JsonIterator extends GenericIterator
      */
     private $current = 0;
 
+    private $fieldDefinition = [];
+
     /**
      * JsonIterator constructor.
      *
@@ -93,11 +95,38 @@ class JsonIterator extends GenericIterator
             throw new IteratorException("No more records. Did you used hasNext() before moveNext()?");
         }
 
-        return new Row($this->jsonObject[$this->current++]);
+        return new Row($this->parseFields($this->jsonObject[$this->current++]));
+    }
+
+    private function parseFields($jsonObject) {
+        if (empty($this->fieldDefinition)) {
+            return $jsonObject;
+        }
+
+        $valueList = [];
+        foreach ($this->fieldDefinition as $field => $path) {
+            $value = $jsonObject;
+            $pathList = preg_split("~/~", $path);
+            foreach ($pathList as $pathElement) {
+                if (!isset($value[$pathElement])) {
+                    $value = null;
+                    break;
+                }
+                $value = $value[$pathElement];
+            }
+            $valueList[$field] = $value;
+        }
+
+        return $valueList;
     }
 
     public function key()
     {
         return $this->current;
+    }
+
+    public function withFields($definition) {
+        $this->fieldDefinition = $definition;
+        return $this;
     }
 }

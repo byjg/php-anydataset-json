@@ -44,6 +44,20 @@ foreach ($iterator as $row) {
 }
 ```
 
+### Extracting Fields
+
+```php
+$json = '{"menu": {"header": "SVG Viewer", "items": [ {"id": "Open", "metadata": {"version": "1", "date": "NA"} }, {"id": "OpenNew", "label": "Open New", "metadata": {"version": "2", "date": "2021-10-01"}} ]}}';
+
+$dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
+
+$iterator = $dataset->getIterator("/menu/items")->withFields(["name" => "id", "version" => "metadata/version"]);
+foreach ($iterator as $row) {
+    echo $row->get('name');       // Print "Open", "OpenNew"
+    echo $row->get('version');    // Print "1", "2"
+}
+```
+
 ## Install
 
 Just type: `composer require "byjg/anydataset-json=4.0.*"`
