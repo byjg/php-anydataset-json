@@ -38,31 +38,20 @@ class JsonIterator extends GenericIterator
             throw new InvalidArgumentException("Invalid JSON object");
         }
 
-        if ($path != "") {
-            if ($path[0] == "/") {
-                $path = substr($path, 1);
-            }
+        $this->current = 0;
 
-            $pathAr = explode("/", $path);
-
-            $newjsonObject = $jsonObject;
-
-            foreach ($pathAr as $key) {
-                if (array_key_exists($key, $newjsonObject)) {
-                    $newjsonObject = $newjsonObject[$key];
-                } elseif ($throwErr) {
-                    throw new IteratorException("Invalid path '$path' in JSON Object");
-                } else {
-                    $newjsonObject = array();
-                    break;
-                }
-            }
-            $this->jsonObject = $newjsonObject;
-        } else {
+        if (empty($path)) {
             $this->jsonObject = $jsonObject;
+            return;
         }
 
-        $this->current = 0;
+        $this->jsonObject = $this->parseField($jsonObject, explode("/", ltrim("$path/*", "/")));
+        if (is_null($this->jsonObject)) {
+            if ($throwErr) {
+                throw new IteratorException("Invalid path '$path' in JSON Object");
+            }
+            $this->jsonObject = [];
+        }
     }
 
     public function count()
@@ -105,7 +94,7 @@ class JsonIterator extends GenericIterator
 
         $valueList = [];
         foreach ($this->fieldDefinition as $field => $path) {
-            $pathList = preg_split("~/~", $path);
+            $pathList = explode("/", ltrim($path, "/"));
             $valueList[$field] = $this->parseField($jsonObject, $pathList);
         }
 
