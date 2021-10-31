@@ -17,7 +17,26 @@ See more about Anydataset [here](https://opensource.byjg.com/anydataset).
 
 ```php
 <?php
-$json = '[{"name":"Joao","surname":"Magalhaes","age":"38"},{"name":"John","surname":"Doe","age":"20"},{"name":"Jane","surname":"Smith","age":"18"}]';
+$json = <<<EOF
+[
+   {
+      "name":"Joao",
+      "surname":"Magalhaes",
+      "age":"38"
+   },
+   {
+      "name":"John",
+      "surname":"Doe",
+      "age":"20"
+   },
+   {
+      "name":"Jane",
+      "surname":"Smith",
+      "age":"18"
+   }
+]
+EOF;
+
 
 $dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
 
@@ -33,7 +52,23 @@ foreach ($iterator as $row) {
 
 ```php
 <?php
-$json = '{"menu": {"header": "SVG Viewer", "items": [ {"id": "Open"}, {"id": "OpenNew", "label": "Open New"} ]}}';
+$json = <<<EOF
+{
+   "menu":{
+      "header":"SVG Viewer",
+      "items":[
+         {
+            "id":"Open"
+         },
+         {
+            "id":"OpenNew",
+            "label":"Open New"
+         }
+      ]
+   }
+}
+EOF;
+
 
 $dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
 
@@ -41,6 +76,95 @@ $iterator = $dataset->getIterator("/menu/items");
 foreach ($iterator as $row) {
     echo $row->get('id');       // Print "Open", "OpenNew"
     echo $row->get('label');    // Print "", "Open New"
+}
+```
+
+### Extracting Fields
+
+```php
+$json = <<<EOF
+{
+   "menu":{
+      "header":"SVG Viewer",
+      "items":[
+         {
+            "id":"Open",
+            "metadata":{
+               "version":"1",
+               "date":"NA"
+            }
+         },
+         {
+            "id":"OpenNew",
+            "label":"Open New",
+            "metadata":{
+               "version":"2",
+               "date":"2021-10-01"
+            }
+         }
+      ]
+   }
+}
+EOF;
+
+
+$dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
+
+$iterator = $dataset->getIterator("/menu/items")
+                        ->withFields([
+                            "name" => "id",
+                            "version" => "metadata/version"
+                        ]);
+foreach ($iterator as $row) {
+    echo $row->get('name');       // Print "Open", "OpenNew"
+    echo $row->get('version');    // Print "1", "2"
+}
+```
+
+### Extract fields with wild mask
+
+```php
+$json = <<<EOF
+{
+   "menu":{
+      "header":"SVG Viewer",
+      "items":[
+         {
+            "id":"Open",
+            "metadata":[
+               {
+                  "version":"1",
+                  "date":"NA"
+               },
+               {
+                  "version":"beta",
+                  "date":"soon"
+               }
+            ]
+         },
+         {
+            "id":"OpenNew",
+            "label":"Open New",
+            "metadata":[
+               {
+                  "version":"2",
+                  "date":"2021-10-01"
+               }
+            ]
+         }
+      ]
+   }
+}
+EOF;
+
+$iterator = $dataset->getIterator("/menu/items")
+                        ->withFields([
+                            "name" => "id", 
+                            "version" => "metadata/*/version"
+                        ]);
+foreach ($iterator as $row) {
+    echo $row->get('name');       // Print "Open", "OpenNew"
+    echo $row->get('version');    // Print ["1", "Beta"], ["2"]
 }
 ```
 
@@ -56,3 +180,4 @@ vendor/bin/phpunit
 
 ----
 [Open source ByJG](http://opensource.byjg.com)
+k

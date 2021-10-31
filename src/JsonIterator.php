@@ -22,6 +22,8 @@ class JsonIterator extends GenericIterator
      */
     private $current = 0;
 
+    private $fieldDefinition = [];
+
     /**
      * JsonIterator constructor.
      *
@@ -36,31 +38,20 @@ class JsonIterator extends GenericIterator
             throw new InvalidArgumentException("Invalid JSON object");
         }
 
-        if ($path != "") {
-            if ($path[0] == "/") {
-                $path = substr($path, 1);
-            }
+        $this->current = 0;
 
-            $pathAr = explode("/", $path);
-
-            $newjsonObject = $jsonObject;
-
-            foreach ($pathAr as $key) {
-                if (array_key_exists($key, $newjsonObject)) {
-                    $newjsonObject = $newjsonObject[$key];
-                } elseif ($throwErr) {
-                    throw new IteratorException("Invalid path '$path' in JSON Object");
-                } else {
-                    $newjsonObject = array();
-                    break;
-                }
-            }
-            $this->jsonObject = $newjsonObject;
-        } else {
+        if (empty($path)) {
             $this->jsonObject = $jsonObject;
+            return;
         }
 
-        $this->current = 0;
+        $this->jsonObject = $this->parseField($jsonObject, explode("/", ltrim("$path/*", "/")));
+        if (is_null($this->jsonObject)) {
+            if ($throwErr) {
+                throw new IteratorException("Invalid path '$path' in JSON Object");
+            }
+            $this->jsonObject = [];
+        }
     }
 
     public function count()
@@ -93,11 +84,51 @@ class JsonIterator extends GenericIterator
             throw new IteratorException("No more records. Did you used hasNext() before moveNext()?");
         }
 
-        return new Row($this->jsonObject[$this->current++]);
+        return new Row($this->parseFields($this->jsonObject[$this->current++]));
+    }
+
+    private function parseFields($jsonObject) {
+        if (empty($this->fieldDefinition)) {
+            return $jsonObject;
+        }
+
+        $valueList = [];
+        foreach ($this->fieldDefinition as $field => $path) {
+            $pathList = explode("/", ltrim($path, "/"));
+            $valueList[$field] = $this->parseField($jsonObject, $pathList);
+        }
+
+        return $valueList;
+    }
+
+    private function parseField($record, $pathList)
+    {
+        $value = $record;
+        while($pathElement = array_shift($pathList)) {
+            if ($pathElement == "*") {
+                $result = [];
+                foreach ($value as $item) {
+                    $result[] = $this->parseField($item, $pathList);
+                }
+                $value = $result;
+                break;
+            }
+            if (!isset($value[$pathElement])) {
+                $value = null;
+                break;
+            }
+            $value = $value[$pathElement];
+        }
+        return $value;
     }
 
     public function key()
     {
         return $this->current;
+    }
+
+    public function withFields($definition) {
+        $this->fieldDefinition = $definition;
+        return $this;
     }
 }
