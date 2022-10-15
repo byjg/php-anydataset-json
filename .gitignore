@@ -7,3 +7,5 @@ vendor
 
 node_modules
 .usdocker
+composer.json
+.phpunit.result.cache
