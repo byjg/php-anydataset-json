@@ -178,6 +178,13 @@ Just type: `composer require "byjg/anydataset-json=4.0.*"`
 vendor/bin/phpunit
 ```
 
+## Dependencies
+
+```mermaid
+flowchart TD
+    byjg/anydataset-json --> byjg/anydataset
+    byjg/anydataset-json --> ext-json
+```
+
 ----
 [Open source ByJG](http://opensource.byjg.com)
-k

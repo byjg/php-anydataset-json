@@ -18,7 +18,7 @@ class JsonDatasetTest extends TestCase
     protected $arrTest2 = array();
 
     // Run before each test case
-    public function setUp()
+    public function setUp(): void
     {
         $this->arrTest = array();
         $this->arrTest[] = array("name" => "Joao", "surname" => "Magalhaes", "age" => 38);
@@ -28,12 +28,6 @@ class JsonDatasetTest extends TestCase
         $this->arrTest2 = array();
         $this->arrTest2[] = array("id" => "Open");
         $this->arrTest2[] = array("id" => "OpenNew", "label" => "Open New");
-    }
-
-    // Run end each test case
-    public function teardown()
-    {
-
     }
 
     public function testcreateJsonIterator()
@@ -72,11 +66,9 @@ class JsonDatasetTest extends TestCase
         $this->assertEquals($jsonIterator->count(), 3); //, "Count() method must return 3");
     }
 
-    /**
-     * @expectedException \ByJG\AnyDataset\Core\Exception\DatasetException
-     */
     public function testjsonNotWellFormatted()
     {
+        $this->expectException(\ByJG\AnyDataset\Core\Exception\DatasetException::class);
         new JsonDataset(JsonDatasetTest::JSON_NOTOK);
     }
 
@@ -111,11 +103,9 @@ class JsonDatasetTest extends TestCase
         $this->assertEquals($jsonIterator->count(), 0); //, "Without throw error");
     }
 
-    /**
-     * @expectedException \ByJG\AnyDataset\Core\Exception\IteratorException
-     */
     public function testnavigateJSONComplexIteratorWrongPath2()
     {
+        $this->expectException(\ByJG\AnyDataset\Core\Exception\IteratorException::class);
         $jsonDataset = new JsonDataset(JsonDatasetTest::JSON_OK2);
         $jsonDataset->getIterator("/menu/wrong", true);
     }
