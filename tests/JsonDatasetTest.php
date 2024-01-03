@@ -2,6 +2,8 @@
 
 namespace Tests\AnyDataset\Json;
 
+use ByJG\AnyDataset\Core\Exception\DatasetException;
+use ByJG\AnyDataset\Core\Exception\IteratorException;
 use ByJG\AnyDataset\Core\IteratorInterface;
 use ByJG\AnyDataset\Json\JsonDataset;
 use ByJG\AnyDataset\Core\Row;
@@ -68,7 +70,7 @@ class JsonDatasetTest extends TestCase
 
     public function testjsonNotWellFormatted()
     {
-        $this->expectException(\ByJG\AnyDataset\Core\Exception\DatasetException::class);
+        $this->expectException(DatasetException::class);
         new JsonDataset(JsonDatasetTest::JSON_NOTOK);
     }
 
@@ -105,7 +107,7 @@ class JsonDatasetTest extends TestCase
 
     public function testnavigateJSONComplexIteratorWrongPath2()
     {
-        $this->expectException(\ByJG\AnyDataset\Core\Exception\IteratorException::class);
+        $this->expectException(IteratorException::class);
         $jsonDataset = new JsonDataset(JsonDatasetTest::JSON_OK2);
         $jsonDataset->getIterator("/menu/wrong", true);
     }
