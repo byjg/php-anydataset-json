@@ -1,11 +1,10 @@
 # AnyDataset-Json
 
+[![Build Status](https://github.com/byjg/php-anydataset-json/actions/workflows/phpunit.yml/badge.svg?branch=master)](https://github.com/byjg/php-anydataset-json/actions/workflows/phpunit.yml)
 [![Opensource ByJG](https://img.shields.io/badge/opensource-byjg-success.svg)](http://opensource.byjg.com)
-[![GitHub source](https://img.shields.io/badge/Github-source-informational?logo=github)](https://github.com/byjg/anydataset-json/)
-[![GitHub license](https://img.shields.io/github/license/byjg/anydataset-json.svg)](https://opensource.byjg.com/opensource/licensing.html)
-[![GitHub release](https://img.shields.io/github/release/byjg/anydataset-json.svg)](https://github.com/byjg/anydataset-json/releases/)
-[![Build Status](https://travis-ci.com/byjg/anydataset-json.svg?branch=master)](https://travis-ci.com/byjg/anydataset-json)
-
+[![GitHub source](https://img.shields.io/badge/Github-source-informational?logo=github)](https://github.com/byjg/php-anydataset-json/)
+[![GitHub license](https://img.shields.io/github/license/byjg/php-anydataset-json.svg)](https://opensource.byjg.com/opensource/licensing.html)
+[![GitHub release](https://img.shields.io/github/release/byjg/php-anydataset-json.svg)](https://github.com/byjg/php-anydataset-json/releases/)
 
 JSON abstraction dataset. Anydataset is an agnostic data source abstraction layer in PHP. 
 
@@ -15,9 +14,8 @@ See more about Anydataset [here](https://opensource.byjg.com/anydataset).
 
 ### Simple Manipulation
 
-```php
-<?php
-$json = <<<EOF
+example1.json
+```json
 [
    {
       "name":"Joao",
@@ -35,8 +33,11 @@ $json = <<<EOF
       "age":"18"
    }
 ]
-EOF;
-
+```
+example1.php
+```php
+<?php
+$json = file_get_contents('example1.json');
 
 $dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
 
@@ -50,9 +51,8 @@ foreach ($iterator as $row) {
 
 ### Specific Path
 
-```php
-<?php
-$json = <<<EOF
+example2.json
+```json
 {
    "menu":{
       "header":"SVG Viewer",
@@ -67,8 +67,12 @@ $json = <<<EOF
       ]
    }
 }
-EOF;
+```
 
+example2.php
+```php
+<?php
+$json = file_get_contents('example2.json');
 
 $dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
 
@@ -81,8 +85,8 @@ foreach ($iterator as $row) {
 
 ### Extracting Fields
 
-```php
-$json = <<<EOF
+example3.json
+```json
 {
    "menu":{
       "header":"SVG Viewer",
@@ -105,8 +109,11 @@ $json = <<<EOF
       ]
    }
 }
-EOF;
+```
 
+example3.php
+```php
+$json = file_get_contents('example3.json');
 
 $dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
 
@@ -123,8 +130,8 @@ foreach ($iterator as $row) {
 
 ### Extract fields with wild mask
 
-```php
-$json = <<<EOF
+example4.json
+```json
 {
    "menu":{
       "header":"SVG Viewer",
@@ -155,7 +162,13 @@ $json = <<<EOF
       ]
    }
 }
-EOF;
+```
+
+example4.php
+```php
+$json = file_get_contents('example4.json');
+
+$dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
 
 $iterator = $dataset->getIterator("/menu/items")
                         ->withFields([
@@ -170,7 +183,9 @@ foreach ($iterator as $row) {
 
 ## Install
 
-Just type: `composer require "byjg/anydataset-json=4.0.*"`
+```
+composer require "byjg/anydataset-json"
+```
 
 ## Running the Unit tests
 
@@ -178,6 +193,13 @@ Just type: `composer require "byjg/anydataset-json=4.0.*"`
 vendor/bin/phpunit
 ```
 
+## Dependencies
+
+```mermaid
+flowchart TD
+    byjg/anydataset-json --> byjg/anydataset
+    byjg/anydataset-json --> ext-json
+```
+
 ----
 [Open source ByJG](http://opensource.byjg.com)
-k

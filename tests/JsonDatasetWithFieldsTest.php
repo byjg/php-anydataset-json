@@ -16,7 +16,7 @@ class JsonDatasetWithFieldsTest extends TestCase
     protected $arrTest = array();
 
     // Run before each test case
-    public function setUp()
+    public function setUp(): void
     {
         $this->arrTest = array();
         $this->arrTest[] = array("name" => "Open", "version" => "1");
@@ -27,7 +27,7 @@ class JsonDatasetWithFieldsTest extends TestCase
     }
 
     // Run end each test case
-    public function teardown()
+    public function teardown(): void
     {
         $this->iterator = null;
     }
