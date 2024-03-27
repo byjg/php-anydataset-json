@@ -95,7 +95,7 @@ class JsonIterator extends GenericIterator
         $valueList = [];
         $postProcessFields = [];
         foreach ($this->fieldDefinition as $field => $path) {
-            if (is_callable($path)) {
+            if ($path instanceof \Closure) {
                 $postProcessFields[$field] = $path;
                 continue;
             }
