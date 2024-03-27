@@ -174,6 +174,9 @@ $iterator = $dataset->getIterator("/menu/items")
                         ->withFields([
                             "name" => "id", 
                             "version" => "metadata/*/version"
+                            "parseable" => function($values) {
+                               return $values["name"] . ":" . implode(", ", $values["version"]);
+                            }
                         ]);
 foreach ($iterator as $row) {
     echo $row->get('name');       // Print "Open", "OpenNew"
