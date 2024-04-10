@@ -15,7 +15,7 @@ class JsonDataset
 
     /**
      * JsonDataset constructor.
-     * @param string $json
+     * @param string|array $json
      * @throws DatasetException
      */
     public function __construct($json)
