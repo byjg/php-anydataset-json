@@ -174,13 +174,14 @@ $iterator = $dataset->getIterator("/menu/items")
                         ->withFields([
                             "name" => "id", 
                             "version" => "metadata/*/version"
-                            "parseable" => function($values) {
+                            "dynamic" => function($values) {
                                return $values["name"] . ":" . implode(", ", $values["version"]);
                             }
                         ]);
 foreach ($iterator as $row) {
     echo $row->get('name');       // Print "Open", "OpenNew"
     echo $row->get('version');    // Print ["1", "Beta"], ["2"]
+    echo $row->get('dynamic');    // Print "Open:1, Beta", "OpenNew:2"
 }
 ```
 

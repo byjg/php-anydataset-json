@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\AnyDataset\Json;
+namespace Tests;
 
 use ByJG\AnyDataset\Core\IteratorInterface;
 use ByJG\AnyDataset\Json\JsonDataset;
@@ -19,11 +19,11 @@ class JsonDatasetWithFieldsTest extends TestCase
     public function setUp(): void
     {
         $this->arrTest = array();
-        $this->arrTest[] = array("name" => "Open", "version" => "1", "parseable" => "Open:1");
-        $this->arrTest[] = array("name" => "OpenNew", "version" => "2", "parseable" => "OpenNew:2");
+        $this->arrTest[] = array("name" => "Open", "version" => "1", "dynamic" => "Open:1");
+        $this->arrTest[] = array("name" => "OpenNew", "version" => "2", "dynamic" => "OpenNew:2");
 
         $jsonDataset = new JsonDataset(JsonDatasetWithFieldsTest::JSON_OK);
-        $this->iterator = $jsonDataset->getIterator("/menu/items")->withFields(["name" => "id", "version" => "metadata/version", "parseable" => function ($values) {
+        $this->iterator = $jsonDataset->getIterator("/menu/items")->withFields(["name" => "id", "version" => "metadata/version", "dynamic" => function ($values) {
             return $values["name"] . ":" . $values['version'];
         }]);
     }

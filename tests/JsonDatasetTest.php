@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\AnyDataset\Json;
+namespace Tests;
 
 use ByJG\AnyDataset\Core\Exception\DatasetException;
 use ByJG\AnyDataset\Core\Exception\IteratorException;
