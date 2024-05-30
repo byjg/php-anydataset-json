@@ -15,11 +15,16 @@ class JsonDataset
 
     /**
      * JsonDataset constructor.
-     * @param string $json
+     * @param string|array $json
      * @throws DatasetException
      */
     public function __construct($json)
     {
+        if (is_array($json)) {
+            $this->jsonObject = $json;
+            return;
+        }
+
         $this->jsonObject = json_decode($json, true);
 
         $lastError = json_last_error();

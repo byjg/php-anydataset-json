@@ -93,9 +93,18 @@ class JsonIterator extends GenericIterator
         }
 
         $valueList = [];
+        $postProcessFields = [];
         foreach ($this->fieldDefinition as $field => $path) {
+            if ($path instanceof \Closure) {
+                $postProcessFields[$field] = $path;
+                continue;
+            }
             $pathList = explode("/", ltrim($path, "/"));
             $valueList[$field] = $this->parseField($jsonObject, $pathList);
+        }
+
+        foreach ($postProcessFields as $field => $callback) {
+            $valueList[$field] = $callback($valueList);
         }
 
         return $valueList;
