@@ -45,7 +45,7 @@ class JsonIterator extends GenericIterator
             return;
         }
 
-        $this->jsonObject = $this->parseField($jsonObject, explode("/", ltrim("$path/*", "/")));
+        $this->jsonObject = $this->parseField($jsonObject, explode("/", ltrim("$path/*", "/")), null);
         if (is_null($this->jsonObject)) {
             if ($throwErr) {
                 throw new IteratorException("Invalid path '$path' in JSON Object");
@@ -94,13 +94,17 @@ class JsonIterator extends GenericIterator
 
         $valueList = [];
         $postProcessFields = [];
-        foreach ($this->fieldDefinition as $field => $path) {
-            if ($path instanceof \Closure) {
-                $postProcessFields[$field] = $path;
+        /**
+         * @var string $field
+         * @var JsonFieldDefinition $value
+         */
+        foreach ($this->fieldDefinition as $field => $value) {
+            if ($value->getPath() instanceof \Closure) {
+                $postProcessFields[$field] = $value->getPath();
                 continue;
             }
-            $pathList = explode("/", ltrim($path, "/"));
-            $valueList[$field] = $this->parseField($jsonObject, $pathList);
+            $pathList = explode("/", ltrim($value->getPath(), "/"));
+            $valueList[$field] = $value->validate($this->parseField($jsonObject, $pathList, $value->getDefaultValue()));
         }
 
         foreach ($postProcessFields as $field => $callback) {
@@ -110,25 +114,39 @@ class JsonIterator extends GenericIterator
         return $valueList;
     }
 
-    private function parseField($record, $pathList)
+    /**
+     * @param mixed $record
+     * @param mixed $pathList
+     * @param mixed $defaultValue
+     * @return mixed|null
+     */
+    private function parseField($record, $pathList, $defaultValue)
     {
         $value = $record;
         while($pathElement = array_shift($pathList)) {
             if ($pathElement == "*") {
                 $result = [];
                 foreach ($value as $item) {
-                    $result[] = $this->parseField($item, $pathList);
+                    $parsedValue = $this->parseField($item, $pathList, $defaultValue);
+                    if (!is_null($parsedValue)) {
+                        $result[] = $parsedValue;
+                    }
                 }
                 $value = $result;
                 break;
             }
             if (!isset($value[$pathElement])) {
-                $value = null;
+                $value = $defaultValue;
                 break;
             }
             $value = $value[$pathElement];
         }
+
         return $value;
+    }
+
+    protected function validateValueAgainstFieldDefinition($value, $fieldDefinition)
+    {
     }
 
     public function key()
@@ -137,7 +155,19 @@ class JsonIterator extends GenericIterator
     }
 
     public function withFields($definition) {
-        $this->fieldDefinition = $definition;
+        foreach ($definition as $field => $value) {
+            if ($value instanceof JsonFieldDefinition) {
+                $field = $value->getFieldName();
+            } else {
+                $value = JsonFieldDefinition::create($field, $value);
+            }
+
+            if (array_key_exists($field, $this->fieldDefinition)) {
+                throw new InvalidArgumentException("Field '$field' already defined");
+            }
+
+            $this->fieldDefinition[$field] = $value;
+        }
         return $this;
     }
 }
