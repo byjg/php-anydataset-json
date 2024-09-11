@@ -10,82 +10,20 @@ JSON abstraction dataset. Anydataset is an agnostic data source abstraction laye
 
 See more about Anydataset [here](https://opensource.byjg.com/anydataset).
 
-## Examples
+## Concept
 
-### Simple Manipulation
+The AnyDataset-Json is an abstraction layer to read a JSON data and transform it into a dataset, 
+and you can manipulate it as a table.
 
-example1.json
-```json
-[
-   {
-      "name":"Joao",
-      "surname":"Magalhaes",
-      "age":"38"
-   },
-   {
-      "name":"John",
-      "surname":"Doe",
-      "age":"20"
-   },
-   {
-      "name":"Jane",
-      "surname":"Smith",
-      "age":"18"
-   }
-]
-```
-example1.php
-```php
-<?php
-$json = file_get_contents('example1.json');
+Some features:
 
-$dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
+ - Read a JSON file or string
+ - Define and extract fields
+ - Validate some elements such as if is required or not, datatype, etc
 
-$iterator = $dataset->getIterator();
-foreach ($iterator as $row) {
-    echo $row->get('name');       // Print Joao, John, Jane
-    echo $row->get('surname');    // Print Magalhaes, Doe, Smith
-    echo $row->get('age');        // Print 38, 20, 18
-}
-```
+### Example
 
-### Specific Path
-
-example2.json
-```json
-{
-   "menu":{
-      "header":"SVG Viewer",
-      "items":[
-         {
-            "id":"Open"
-         },
-         {
-            "id":"OpenNew",
-            "label":"Open New"
-         }
-      ]
-   }
-}
-```
-
-example2.php
-```php
-<?php
-$json = file_get_contents('example2.json');
-
-$dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
-
-$iterator = $dataset->getIterator("/menu/items");
-foreach ($iterator as $row) {
-    echo $row->get('id');       // Print "Open", "OpenNew"
-    echo $row->get('label');    // Print "", "Open New"
-}
-```
-
-### Extracting Fields
-
-example3.json
+example.json
 ```json
 {
    "menu":{
@@ -111,79 +49,30 @@ example3.json
 }
 ```
 
-example3.php
+example.php
 ```php
-$json = file_get_contents('example3.json');
+$json = file_get_contents('example.json');
 
 $dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
 
 $iterator = $dataset->getIterator("/menu/items")
                         ->withFields([
-                            "name" => "id",
-                            "version" => "metadata/version"
+                            JsonFieldDefinition::create("name", "id"),
+                            JsonFieldDefinition::create("version", "metadata/version")
                         ]);
+
 foreach ($iterator as $row) {
     echo $row->get('name');       // Print "Open", "OpenNew"
     echo $row->get('version');    // Print "1", "2"
 }
 ```
 
-### Extract fields with wild mask
+## Features
 
-example4.json
-```json
-{
-   "menu":{
-      "header":"SVG Viewer",
-      "items":[
-         {
-            "id":"Open",
-            "metadata":[
-               {
-                  "version":"1",
-                  "date":"NA"
-               },
-               {
-                  "version":"beta",
-                  "date":"soon"
-               }
-            ]
-         },
-         {
-            "id":"OpenNew",
-            "label":"Open New",
-            "metadata":[
-               {
-                  "version":"2",
-                  "date":"2021-10-01"
-               }
-            ]
-         }
-      ]
-   }
-}
-```
+- [The JsonFieldDefinition](docs/jsonfielddefinition.md) 
+- [Creating dynamic fields](docs/dynamic-fields.md)
+- [Simple Manipulation](docs/simple.md)
 
-example4.php
-```php
-$json = file_get_contents('example4.json');
-
-$dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
-
-$iterator = $dataset->getIterator("/menu/items")
-                        ->withFields([
-                            "name" => "id", 
-                            "version" => "metadata/*/version"
-                            "dynamic" => function($values) {
-                               return $values["name"] . ":" . implode(", ", $values["version"]);
-                            }
-                        ]);
-foreach ($iterator as $row) {
-    echo $row->get('name');       // Print "Open", "OpenNew"
-    echo $row->get('version');    // Print ["1", "Beta"], ["2"]
-    echo $row->get('dynamic');    // Print "Open:1, Beta", "OpenNew:2"
-}
-```
 
 ## Install
 

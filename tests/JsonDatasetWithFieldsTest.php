@@ -5,6 +5,7 @@ namespace Tests;
 use ByJG\AnyDataset\Core\IteratorInterface;
 use ByJG\AnyDataset\Json\JsonDataset;
 use ByJG\AnyDataset\Core\Row;
+use ByJG\AnyDataset\Json\JsonFieldDefinition;
 use PHPUnit\Framework\TestCase;
 
 class JsonDatasetWithFieldsTest extends TestCase
@@ -87,4 +88,110 @@ class JsonDatasetWithFieldsTest extends TestCase
         $this->assertEquals($sr->get("name"), $this->arrTest[$count]["name"]);
         $this->assertEquals($sr->get("version"), $this->arrTest[$count]["version"]);
     }
+
+
+    public function testRequired()
+    {
+        $jsonDataset = new JsonDataset('{"menu": {"header": "SVG Viewer", "items": [ {"id": "Open", "metadata": [{"version": "1", "date": "NA"}, {"version": "beta", "date": "soon"}] }, {"label": "Open New", "metadata": [{"date": "2021-10-01"}] } ]}}');
+
+        $iterator = $jsonDataset->getIterator("/menu/items")->withFields([
+            JsonFieldDefinition::create("name",  "id")->required(),
+            JsonFieldDefinition::create("version", "metadata/*/version")
+        ]);
+
+        $iterator->moveNext();
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Field 'name' is required");
+
+        $iterator->moveNext();
+    }
+
+    public function testRequiredArray()
+    {
+        $jsonDataset = new JsonDataset('{"menu": {"header": "SVG Viewer", "items": [ {"id": "Open", "metadata": [{"version": "1", "date": "NA"}, {"version": "beta", "date": "soon"}] }, {"id": "OpenNew", "label": "Open New", "metadata": [{"date": "2021-10-01"}] } ]}}');
+
+        $iterator = $jsonDataset->getIterator("/menu/items")->withFields([
+            JsonFieldDefinition::create("name",  "id"),
+            JsonFieldDefinition::create("version", "metadata/*/version")->required()
+        ]);
+
+        $iterator->moveNext();
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Field 'version' is required");
+
+        $iterator->moveNext();
+    }
+
+    public function testInteger()
+    {
+        $jsonDataset = new JsonDataset('{"menu": {"header": "SVG Viewer", "items": [ {"id": 1001, "metadata": [{"version": "1", "date": "NA"}, {"version": "beta", "date": "soon"}] }, {"id": "text", "label": "Open New", "metadata": [{"date": "2021-10-01"}] } ]}}');
+
+        $iterator = $jsonDataset->getIterator("/menu/items")->withFields([
+            JsonFieldDefinition::create("name",  "id")->ofTypeInt(),
+            JsonFieldDefinition::create("version", "metadata/*/version")
+        ]);
+
+        $row = $iterator->moveNext();
+        $this->assertSame(1001, $row->get("name"));
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Field 'name' must be an integer");
+
+        $iterator->moveNext();
+    }
+
+    public function testFloat()
+    {
+        $jsonDataset = new JsonDataset('{"menu": {"header": "SVG Viewer", "items": [ {"id": 1001.340, "metadata": [{"version": "1", "date": "NA"}, {"version": "beta", "date": "soon"}] }, {"id": "text", "label": "Open New", "metadata": [{"date": "2021-10-01"}] } ]}}');
+
+        $iterator = $jsonDataset->getIterator("/menu/items")->withFields([
+            JsonFieldDefinition::create("name",  "id")->ofTypeFloat(),
+            JsonFieldDefinition::create("version", "metadata/*/version")
+        ]);
+
+        $row = $iterator->moveNext();
+        $this->assertSame(1001.34, $row->get("name"));
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Field 'name' must be a number");
+
+        $row = $iterator->moveNext();
+    }
+
+    public function testBool()
+    {
+        $jsonDataset = new JsonDataset('{"menu": {"header": "SVG Viewer", "items": [ {"id": true, "metadata": [{"version": "1", "date": "NA"}, {"version": "beta", "date": "soon"}] }, {"id": "text", "label": "Open New", "metadata": [{"date": "2021-10-01"}] } ]}}');
+
+        $iterator = $jsonDataset->getIterator("/menu/items")->withFields([
+            JsonFieldDefinition::create("name",  "id")->ofTypeBool(),
+            JsonFieldDefinition::create("version", "metadata/*/version")
+        ]);
+
+        $row = $iterator->moveNext();
+        $this->assertTrue($row->get("name"));
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Field 'name' must be a boolean");
+
+        $iterator->moveNext();
+    }
+
+    public function testDefault()
+    {
+        $jsonDataset = new JsonDataset('{"menu": {"header": "SVG Viewer", "items": [ {"id": "Open", "metadata": [{"version": "1", "date": "NA"}, {"version": "beta", "date": "soon"}] }, {"label": "Open New", "metadata": [{"date": "2021-10-01"}] } ]}}');
+
+        $iterator = $jsonDataset->getIterator("/menu/items")->withFields([
+            JsonFieldDefinition::create("name",  "id")->withDefaultValue('none'),
+            JsonFieldDefinition::create("version", "metadata/*/version")
+        ]);
+
+        $row = $iterator->moveNext();
+        $this->assertEquals('Open', $row->get("name"));
+
+        $row = $iterator->moveNext();
+        $this->assertEquals('none', $row->get("name"));
+    }
+
 }
