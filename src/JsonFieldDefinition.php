@@ -2,31 +2,26 @@
 
 namespace ByJG\AnyDataset\Json;
 
+use Closure;
 use InvalidArgumentException;
 
 class JsonFieldDefinition
 {
     /** @var string $fieldName */
-    protected $fieldName;
+    protected string $fieldName;
 
     /** @var bool $required */
-    protected $required = false;
+    protected bool $required = false;
 
-    /** @var string $defaultValue */
-    protected $defaultValue = null;
+    /** @var string|null $defaultValue */
+    protected ?string $defaultValue = null;
 
-    /** @var string $type */
-    protected $type = 'string';
+    /** @var JsonFieldDefinitionEnum $type */
+    protected JsonFieldDefinitionEnum $type;
 
-    protected $path = null;
+    protected string|Closure|null $path = null;
 
-    const STRING = 'string';
-    const INT = 'int';
-    const FLOAT = 'float';
-    const BOOL = 'bool';
-    const ANY = 'any';
-
-    public function __construct($fieldName, $path, $required = false, $defaultValue = null, $type = self::ANY)
+    public function __construct(string $fieldName, string|Closure $path, bool $required = false, mixed $defaultValue = null, JsonFieldDefinitionEnum $type = JsonFieldDefinitionEnum::ANY)
     {
         $this
             ->withName($fieldName)
@@ -41,27 +36,27 @@ class JsonFieldDefinition
         return new self($fieldName, $path);
     }
 
-    public function getFieldName()
+    public function getFieldName(): string
     {
         return $this->fieldName;
     }
 
-    public function getPath()
+    public function getPath(): string|Closure|null
     {
         return $this->path;
     }
 
-    public function isRequired()
+    public function isRequired(): bool
     {
         return $this->required;
     }
 
-    public function getDefaultValue()
+    public function getDefaultValue(): ?string
     {
         return $this->defaultValue;
     }
 
-    public function getType()
+    public function getType(): JsonFieldDefinitionEnum
     {
         return $this->type;
     }
@@ -92,35 +87,32 @@ class JsonFieldDefinition
 
     public function ofTypeString(): self
     {
-        return $this->ofType(self::STRING);
+        return $this->ofType(JsonFieldDefinitionEnum::STRING);
     }
 
     public function ofTypeInt(): self
     {
-        return $this->ofType(self::INT);
+        return $this->ofType(JsonFieldDefinitionEnum::INT);
     }
 
     public function ofTypeFloat(): self
     {
-        return $this->ofType(self::FLOAT);
+        return $this->ofType(JsonFieldDefinitionEnum::FLOAT);
     }
 
     public function ofTypeBool(): self
     {
-        return $this->ofType(self::BOOL);
+        return $this->ofType(JsonFieldDefinitionEnum::BOOL);
     }
 
     public function ofAnyType(): self
     {
-        return $this->ofType(self::ANY);
+        return $this->ofType(JsonFieldDefinitionEnum::ANY);
     }
 
 
-    protected function ofType($type): self
+    protected function ofType(JsonFieldDefinitionEnum $type): self
     {
-        if (!in_array($type, [self::STRING, self::INT, self::FLOAT, self::BOOL, self::ANY])) {
-            throw new \InvalidArgumentException("Invalid type '$type'");
-        }
         $this->type = $type;
         return $this;
     }
@@ -133,25 +125,25 @@ class JsonFieldDefinition
             throw new InvalidArgumentException("Field '{$this->getFieldName()}' is required");
         }
 
-        if ($this->getType() == JsonFieldDefinition::INT) {
+        if ($this->getType() == JsonFieldDefinitionEnum::INT) {
             if (!intval($value)) {
                 throw new InvalidArgumentException("Field '{$this->getFieldName()}' must be an integer");
             } else {
                 $value = intval($value);
             }
-        } elseif ($this->getType() == JsonFieldDefinition::FLOAT) {
+        } elseif ($this->getType() == JsonFieldDefinitionEnum::FLOAT) {
             if (!is_numeric($value)) {
                 throw new InvalidArgumentException("Field '{$this->getFieldName()}' must be a number");
             } else {
                 $value = floatval($value);
             }
-        } elseif ($this->getType() == JsonFieldDefinition::BOOL) {
+        } elseif ($this->getType() == JsonFieldDefinitionEnum::BOOL) {
             if (!is_bool($value)) {
                 throw new InvalidArgumentException("Field '{$this->getFieldName()}' must be a boolean");
             } else {
                 $value = boolval($value);
             }
-        } elseif ($this->getType() == JsonFieldDefinition::STRING) {
+        } elseif ($this->getType() == JsonFieldDefinitionEnum::STRING) {
             if (!is_string($value)) {
                 throw new InvalidArgumentException("Field '{$this->getFieldName()}' must be a string");
             } else {
@@ -160,7 +152,5 @@ class JsonFieldDefinition
         }
 
         return $value;
-
     }
-
 }

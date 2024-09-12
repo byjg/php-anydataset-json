@@ -49,7 +49,7 @@ class JsonDatasetWithFieldsTest extends TestCase
             $this->assertSingleRow($this->iterator->moveNext(), $count++);
         }
 
-        $this->assertEquals(2, $this->iterator->count(), 2); //, "Count() method must return 2");
+        $this->assertEquals(2, $this->iterator->count(), "Count() method must return 2");
     }
 
     public function testnavigateJsonIterator2()
