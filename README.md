@@ -4,7 +4,7 @@
 [![Opensource ByJG](https://img.shields.io/badge/opensource-byjg-success.svg)](http://opensource.byjg.com)
 [![GitHub source](https://img.shields.io/badge/Github-source-informational?logo=github)](https://github.com/byjg/php-anydataset-json/)
 [![GitHub license](https://img.shields.io/github/license/byjg/php-anydataset-json.svg)](https://opensource.byjg.com/opensource/licensing.html)
-[![GitHub release](https://img.shields.io/github/release/byjg/php-anydataset-json.svg)](https://github.com/byjg/php-anydataset-json/releases/)
+[![GitHub release](https://img.shields.io/github/release/byjg/php-anydataset-json.svg)](https://github.com/byjg/uri/releases/)
 
 JSON abstraction dataset. Anydataset is an agnostic data source abstraction layer in PHP. 
 

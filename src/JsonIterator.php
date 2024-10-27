@@ -11,33 +11,29 @@ class JsonIterator extends GenericIterator
 {
 
     /**
-     * @var array
+     * @var ?array
      */
-    private $jsonObject;
+    private ?array $jsonObject;
 
     /**
      * Enter description here...
      *
      * @var int
      */
-    private $current = 0;
+    private int $current = 0;
 
-    private $fieldDefinition = [];
+    private array $fieldDefinition = [];
 
     /**
      * JsonIterator constructor.
      *
-     * @param $jsonObject
+     * @param array $jsonObject
      * @param string $path
      * @param bool $throwErr
      * @throws IteratorException
      */
-    public function __construct($jsonObject, $path = "", $throwErr = false)
+    public function __construct(array $jsonObject, string $path = "", bool $throwErr = false)
     {
-        if (!is_array($jsonObject)) {
-            throw new InvalidArgumentException("Invalid JSON object");
-        }
-
         $this->current = 0;
 
         if (empty($path)) {
@@ -54,7 +50,7 @@ class JsonIterator extends GenericIterator
         }
     }
 
-    public function count()
+    public function count(): int
     {
         return (count($this->jsonObject));
     }
@@ -63,7 +59,7 @@ class JsonIterator extends GenericIterator
      * @access public
      * @return bool
      */
-    public function hasNext()
+    public function hasNext(): bool
     {
         if ($this->current < $this->count()) {
             return true;
@@ -74,20 +70,19 @@ class JsonIterator extends GenericIterator
 
     /**
      * @access public
-     * @return Row
-     * @throws IteratorException
-     * @throws \ByJG\Serializer\Exception\InvalidArgumentException
+     * @return Row|null
      */
-    public function moveNext()
+    public function moveNext(): ?Row
     {
         if (!$this->hasNext()) {
-            throw new IteratorException("No more records. Did you used hasNext() before moveNext()?");
+            return null;
         }
 
         return new Row($this->parseFields($this->jsonObject[$this->current++]));
     }
 
-    private function parseFields($jsonObject) {
+    private function parseFields(array $jsonObject): array
+    {
         if (empty($this->fieldDefinition)) {
             return $jsonObject;
         }
@@ -114,13 +109,7 @@ class JsonIterator extends GenericIterator
         return $valueList;
     }
 
-    /**
-     * @param mixed $record
-     * @param mixed $pathList
-     * @param mixed $defaultValue
-     * @return mixed|null
-     */
-    private function parseField($record, $pathList, $defaultValue)
+    private function parseField(array $record, array $pathList, mixed $defaultValue = null): mixed
     {
         $value = $record;
         while($pathElement = array_shift($pathList)) {
@@ -149,12 +138,17 @@ class JsonIterator extends GenericIterator
     {
     }
 
-    public function key()
+    public function key(): int
     {
         return $this->current;
     }
 
-    public function withFields($definition) {
+    /**
+     * @param array $definition
+     * @return $this
+     */
+    public function withFields(array $definition): static
+    {
         foreach ($definition as $field => $value) {
             if ($value instanceof JsonFieldDefinition) {
                 $field = $value->getFieldName();
