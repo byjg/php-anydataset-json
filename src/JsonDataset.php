@@ -3,7 +3,6 @@
 namespace ByJG\AnyDataset\Json;
 
 use ByJG\AnyDataset\Core\Exception\IteratorException;
-use ByJG\AnyDataset\Core\GenericIterator;
 use ByJG\AnyDataset\Core\Exception\DatasetException;
 
 class JsonDataset

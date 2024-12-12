@@ -37,9 +37,8 @@ class JsonDatasetTest extends TestCase
         $jsonDataset = new JsonDataset(JsonDatasetTest::JSON_OK);
         $jsonIterator = $jsonDataset->getIterator();
 
-        $this->assertTrue($jsonIterator instanceof IteratorInterface); //, "Resultant object must be an interator");
         $this->assertTrue($jsonIterator->hasNext()); // "hasNext() method must be true");
-        $this->assertEquals($jsonIterator->Count(), 3); //, "Count() method must return 3");
+        $this->assertCount(3, $jsonIterator->toArray()); //, "Count() method must return 3");
     }
 
     public function testnavigateJsonIterator()
@@ -52,7 +51,7 @@ class JsonDatasetTest extends TestCase
             $this->assertSingleRow($jsonIterator->moveNext(), $count++);
         }
 
-        $this->assertEquals($jsonIterator->count(), 3); //, "Count() method must return 3");
+        $this->assertEquals(3, $count); //, "Count() method must return 3");
     }
 
     public function testnavigateJsonIterator2()
@@ -65,7 +64,7 @@ class JsonDatasetTest extends TestCase
             $this->assertSingleRow($sr, $count++);
         }
 
-        $this->assertEquals($jsonIterator->count(), 3); //, "Count() method must return 3");
+        $this->assertEquals(3, $count); //, "Count() method must return 3");
     }
 
     public function testjsonNotWellFormatted()
@@ -84,7 +83,7 @@ class JsonDatasetTest extends TestCase
             $this->assertSingleRow2($sr, $count++);
         }
 
-        $this->assertEquals($jsonIterator->count(), 2); //, "Count() method must return 3");
+        $this->assertEquals(2, $count); //, "Count() method must return 3");
     }
 
     public function testnavigateJSONComplexIterator()
@@ -102,7 +101,7 @@ class JsonDatasetTest extends TestCase
         $jsonDataset = new JsonDataset(JsonDatasetTest::JSON_OK2);
         $jsonIterator = $jsonDataset->getIterator("/menu/wrong");
 
-        $this->assertEquals($jsonIterator->count(), 0); //, "Without throw error");
+        $this->assertEquals([], $jsonIterator->toArray()); //, "Without throw error");
     }
 
     public function testnavigateJSONComplexIteratorWrongPath2()

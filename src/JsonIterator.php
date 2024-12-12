@@ -5,7 +5,11 @@ namespace ByJG\AnyDataset\Json;
 use ByJG\AnyDataset\Core\Exception\IteratorException;
 use ByJG\AnyDataset\Core\GenericIterator;
 use ByJG\AnyDataset\Core\Row;
+use ByJG\AnyDataset\Core\RowArray;
+use ByJG\AnyDataset\Core\RowInterface;
+use Closure;
 use InvalidArgumentException;
+use ReturnTypeWillChange;
 
 class JsonIterator extends GenericIterator
 {
@@ -18,9 +22,9 @@ class JsonIterator extends GenericIterator
     /**
      * Enter description here...
      *
-     * @var int
+     * @var array
      */
-    private int $current = 0;
+    private array $current;
 
     private array $fieldDefinition = [];
 
@@ -34,7 +38,10 @@ class JsonIterator extends GenericIterator
      */
     public function __construct(array $jsonObject, string $path = "", bool $throwErr = false)
     {
-        $this->current = 0;
+        $this->current = [
+            'row' => null,
+            'i' => 0,
+        ];
 
         if (empty($path)) {
             $this->jsonObject = $jsonObject;
@@ -50,63 +57,68 @@ class JsonIterator extends GenericIterator
         }
     }
 
-    public function count(): int
-    {
-        return (count($this->jsonObject));
-    }
-
     /**
      * @access public
      * @return bool
      */
     public function hasNext(): bool
     {
-        if ($this->current < $this->count()) {
-            return true;
-        }
-
-        return false;
+        return ($this->current["i"] < count($this->jsonObject));
     }
 
     /**
      * @access public
      * @return Row|null
      */
-    public function moveNext(): ?Row
+    public function moveNext(): ?RowInterface
     {
+        return $this->parseRow(next: true);
+    }
+
+    private function parseRow(bool $next): ?RowInterface
+    {
+        if ($this->current["row"] !== null && !$next) {
+            return $this->current["row"];
+        }
+
         if (!$this->hasNext()) {
             return null;
         }
 
-        return new Row($this->parseFields($this->jsonObject[$this->current++]));
-    }
+        $rowNumber = $this->current["i"];
+        $jsonObject = $this->jsonObject[$rowNumber];
 
-    private function parseFields(array $jsonObject): array
-    {
-        if (empty($this->fieldDefinition)) {
-            return $jsonObject;
-        }
-
-        $valueList = [];
-        $postProcessFields = [];
-        /**
-         * @var string $field
-         * @var JsonFieldDefinition $value
-         */
-        foreach ($this->fieldDefinition as $field => $value) {
-            if ($value->getPath() instanceof \Closure) {
-                $postProcessFields[$field] = $value->getPath();
-                continue;
+        if (!empty($this->fieldDefinition)) {
+            $valueList = [];
+            $postProcessFields = [];
+            /**
+             * @var string $field
+             * @var JsonFieldDefinition $value
+             */
+            foreach ($this->fieldDefinition as $field => $value) {
+                if ($value->getPath() instanceof Closure) {
+                    $postProcessFields[$field] = $value->getPath();
+                    continue;
+                }
+                $pathList = explode("/", ltrim($value->getPath(), "/"));
+                $valueList[$field] = $value->validate($this->parseField($jsonObject, $pathList, $value->getDefaultValue()));
             }
-            $pathList = explode("/", ltrim($value->getPath(), "/"));
-            $valueList[$field] = $value->validate($this->parseField($jsonObject, $pathList, $value->getDefaultValue()));
+
+            foreach ($postProcessFields as $field => $callback) {
+                $valueList[$field] = $callback($valueList);
+            }
+        } else {
+            $valueList = $jsonObject;
         }
 
-        foreach ($postProcessFields as $field => $callback) {
-            $valueList[$field] = $callback($valueList);
-        }
+        $row = new RowArray($valueList);
 
-        return $valueList;
+        $this->current = [
+            'row' => $next ? null : $row,
+            'i' => $rowNumber + ($next ? 1 : 0),
+        ];
+
+        return $row;
     }
 
     private function parseField(array $record, array $pathList, mixed $defaultValue = null): mixed
@@ -134,13 +146,9 @@ class JsonIterator extends GenericIterator
         return $value;
     }
 
-    protected function validateValueAgainstFieldDefinition($value, $fieldDefinition)
-    {
-    }
-
     public function key(): int
     {
-        return $this->current;
+        return $this->current["i"];
     }
 
     /**
@@ -163,5 +171,11 @@ class JsonIterator extends GenericIterator
             $this->fieldDefinition[$field] = $value;
         }
         return $this;
+    }
+
+    #[ReturnTypeWillChange]
+    public function current(): ?RowInterface
+    {
+        return $this->parseRow(next: false);
     }
 }

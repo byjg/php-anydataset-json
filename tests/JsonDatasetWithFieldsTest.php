@@ -35,24 +35,26 @@ class JsonDatasetWithFieldsTest extends TestCase
         $this->iterator = null;
     }
 
-    public function testcreateJsonIterator()
+    public function testCreateJsonIterator()
     {
         $this->assertTrue($this->iterator instanceof IteratorInterface); //, "Resultant object must be an interator");
         $this->assertTrue($this->iterator->hasNext()); // "hasNext() method must be true");
-        $this->assertEquals(2, $this->iterator->Count()); //, "Count() method must return 2");
+        $this->assertNotEmpty($this->iterator->moveNext()); //, "Count() method must return 2");
+        $this->assertNotEmpty($this->iterator->moveNext()); //, "Count() method must return 2");
+        $this->assertEmpty($this->iterator->moveNext()); //, "Count() method must return 2");
     }
 
-    public function testnavigateJsonIterator()
+    public function testNavigateJsonIterator()
     {
         $count = 0;
         while ($this->iterator->hasNext()) {
             $this->assertSingleRow($this->iterator->moveNext(), $count++);
         }
 
-        $this->assertEquals(2, $this->iterator->count(), "Count() method must return 2");
+        $this->assertEquals(2, $count, "Count() method must return 2");
     }
 
-    public function testnavigateJsonIterator2()
+    public function testNavigateJsonIterator2()
     {
         $this->assertEquals($this->arrTest, $this->iterator->toArray());
     }
