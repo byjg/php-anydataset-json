@@ -69,9 +69,9 @@ foreach ($iterator as $row) {
 
 ## Features
 
-- [The JsonFieldDefinition](docs/jsonfielddefinition.md) 
-- [Creating dynamic fields](docs/dynamic-fields.md)
 - [Simple Manipulation](docs/simple.md)
+- [Creating dynamic fields](docs/dynamic-fields.md)
+- [The JsonFieldDefinition](docs/jsonfielddefinition.md)
 
 
 ## Install

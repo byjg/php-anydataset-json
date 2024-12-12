@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+---
+
 # Simple Manipulation
 
 This is the simplest way to manipulate a JSON file. You can read the JSON file and iterate over the rows.

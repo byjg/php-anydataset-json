@@ -1,3 +1,7 @@
+---
+sidebar_position: 3
+---
+
 # The JsonFieldDefinition
 
 The JsonFieldDefinition is a class to define the fields of a JSON file.

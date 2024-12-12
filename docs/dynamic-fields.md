@@ -1,3 +1,7 @@
+---
+sidebar_position: 2
+---
+
 # Dynamic Fields
 
 Dynamic fields are fields that are not defined in the dataset. They are created on the fly after read the JSON file.
