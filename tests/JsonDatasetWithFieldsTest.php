@@ -3,6 +3,7 @@
 namespace Tests;
 
 use ByJG\AnyDataset\Core\IteratorInterface;
+use ByJG\AnyDataset\Core\RowArray;
 use ByJG\AnyDataset\Json\JsonDataset;
 use ByJG\AnyDataset\Core\Row;
 use ByJG\AnyDataset\Json\JsonFieldDefinition;
@@ -83,7 +84,7 @@ class JsonDatasetWithFieldsTest extends TestCase
     }
 
     /**
-     * @param Row $sr
+     * @param RowArray $sr
      */
     public function assertSingleRow($sr, $count)
     {
@@ -159,7 +160,7 @@ class JsonDatasetWithFieldsTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Field 'name' must be a number");
 
-        $row = $iterator->next();
+        $iterator->next();
     }
 
     public function testBool()
