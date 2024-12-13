@@ -87,8 +87,8 @@ class JsonDatasetWithFieldsTest extends TestCase
      */
     public function assertSingleRow($sr, $count)
     {
-        $this->assertEquals($sr->get("name"), $this->arrTest[$count]["name"]);
-        $this->assertEquals($sr->get("version"), $this->arrTest[$count]["version"]);
+        $this->assertEquals($this->arrTest[$count]["name"], $sr->get("name"), "Row $count: Field 'name' must be equal");
+        $this->assertEquals($this->arrTest[$count]["version"], $sr->get("version"), "Row $count: Field 'version' must be equal");
     }
 
 
@@ -101,12 +101,12 @@ class JsonDatasetWithFieldsTest extends TestCase
             JsonFieldDefinition::create("version", "metadata/*/version")
         ]);
 
-        $iterator->moveNext();
+        $iterator->current();
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Field 'name' is required");
 
-        $iterator->moveNext();
+        $iterator->next();
     }
 
     public function testRequiredArray()
@@ -118,12 +118,12 @@ class JsonDatasetWithFieldsTest extends TestCase
             JsonFieldDefinition::create("version", "metadata/*/version")->required()
         ]);
 
-        $iterator->moveNext();
+        $iterator->current();
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Field 'version' is required");
 
-        $iterator->moveNext();
+        $iterator->next();
     }
 
     public function testInteger()
@@ -135,13 +135,13 @@ class JsonDatasetWithFieldsTest extends TestCase
             JsonFieldDefinition::create("version", "metadata/*/version")
         ]);
 
-        $row = $iterator->moveNext();
+        $row = $iterator->current();
         $this->assertSame(1001, $row->get("name"));
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Field 'name' must be an integer");
 
-        $iterator->moveNext();
+        $iterator->next();
     }
 
     public function testFloat()
@@ -153,13 +153,13 @@ class JsonDatasetWithFieldsTest extends TestCase
             JsonFieldDefinition::create("version", "metadata/*/version")
         ]);
 
-        $row = $iterator->moveNext();
+        $row = $iterator->current();
         $this->assertSame(1001.34, $row->get("name"));
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Field 'name' must be a number");
 
-        $row = $iterator->moveNext();
+        $row = $iterator->next();
     }
 
     public function testBool()
@@ -171,13 +171,13 @@ class JsonDatasetWithFieldsTest extends TestCase
             JsonFieldDefinition::create("version", "metadata/*/version")
         ]);
 
-        $row = $iterator->moveNext();
+        $row = $iterator->current();
         $this->assertTrue($row->get("name"));
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Field 'name' must be a boolean");
 
-        $iterator->moveNext();
+        $iterator->next();
     }
 
     public function testDefault()

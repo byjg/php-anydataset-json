@@ -4,7 +4,6 @@ namespace ByJG\AnyDataset\Json;
 
 use ByJG\AnyDataset\Core\Exception\IteratorException;
 use ByJG\AnyDataset\Core\GenericIterator;
-use ByJG\AnyDataset\Core\Row;
 use ByJG\AnyDataset\Core\RowArray;
 use ByJG\AnyDataset\Core\RowInterface;
 use Closure;
@@ -57,31 +56,9 @@ class JsonIterator extends GenericIterator
         }
     }
 
-    /**
-     * @access public
-     * @return bool
-     */
-    public function hasNext(): bool
+    private function parseRow(): ?RowInterface
     {
-        return ($this->current["i"] < count($this->jsonObject));
-    }
-
-    /**
-     * @access public
-     * @return Row|null
-     */
-    public function moveNext(): ?RowInterface
-    {
-        return $this->parseRow(next: true);
-    }
-
-    private function parseRow(bool $next): ?RowInterface
-    {
-        if ($this->current["row"] !== null && !$next) {
-            return $this->current["row"];
-        }
-
-        if (!$this->hasNext()) {
+        if (!$this->valid()) {
             return null;
         }
 
@@ -113,10 +90,7 @@ class JsonIterator extends GenericIterator
 
         $row = new RowArray($valueList);
 
-        $this->current = [
-            'row' => $next ? null : $row,
-            'i' => $rowNumber + ($next ? 1 : 0),
-        ];
+        $this->current["row"] = $row;
 
         return $row;
     }
@@ -176,6 +150,20 @@ class JsonIterator extends GenericIterator
     #[ReturnTypeWillChange]
     public function current(): ?RowInterface
     {
-        return $this->parseRow(next: false);
+        return $this->current["row"] ?? $this->parseRow();
+    }
+
+    #[ReturnTypeWillChange]
+    public function next(): void
+    {
+        $this->current["i"]++;
+        $this->current["row"] = null;
+        $this->parseRow();
+    }
+
+    #[ReturnTypeWillChange]
+    public function valid(): bool
+    {
+        return ($this->current["i"] < count($this->jsonObject));
     }
 }
