@@ -18,10 +18,13 @@ and you can manipulate it as a table.
 Some features:
 
  - Read a JSON file or string
- - Define and extract fields
- - Validate some elements such as if is required or not, datatype, etc
+ - Navigate through nested JSON structures using path notation
+ - Define and extract fields with validation
+ - Create dynamic fields using closures
+ - Validate data types (string, int, float, bool)
+ - Handle required fields and default values
 
-### Example
+### Basic Example
 
 example.json
 ```json
@@ -55,10 +58,13 @@ $json = file_get_contents('example.json');
 
 $dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
 
+// Basic usage with field definitions
 $iterator = $dataset->getIterator("/menu/items")
                         ->withFields([
-                            JsonFieldDefinition::create("name", "id"),
-                            JsonFieldDefinition::create("version", "metadata/version")
+                            \ByJG\AnyDataset\Json\JsonFieldDefinition::create("name", "id"),
+                            \ByJG\AnyDataset\Json\JsonFieldDefinition::create("version", "metadata/version")
+                                ->required()
+                                ->ofTypeString()
                         ]);
 
 foreach ($iterator as $row) {

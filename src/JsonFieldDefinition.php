@@ -105,7 +105,7 @@ class JsonFieldDefinition
         return $this->ofType(JsonFieldDefinitionEnum::BOOL);
     }
 
-    public function ofAnyType(): self
+    public function ofTypeAny(): self
     {
         return $this->ofType(JsonFieldDefinitionEnum::ANY);
     }
