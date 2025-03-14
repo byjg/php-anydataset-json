@@ -4,9 +4,12 @@ namespace Tests;
 
 use ByJG\AnyDataset\Core\IteratorInterface;
 use ByJG\AnyDataset\Core\RowArray;
+use ByJG\AnyDataset\Core\RowInterface;
 use ByJG\AnyDataset\Json\JsonDataset;
 use ByJG\AnyDataset\Core\Row;
 use ByJG\AnyDataset\Json\JsonFieldDefinition;
+use ByJG\AnyDataset\Json\JsonIterator;
+use Override;
 use PHPUnit\Framework\TestCase;
 
 class JsonDatasetWithFieldsTest extends TestCase
@@ -14,10 +17,11 @@ class JsonDatasetWithFieldsTest extends TestCase
 
     const JSON_OK = '{"menu": {"header": "SVG Viewer", "items": [ {"id": "Open", "metadata": {"version": "1", "date": "NA"} }, {"id": "OpenNew", "label": "Open New", "metadata": {"version": "2", "date": "2021-10-01"}} ]}}';
 
-    protected $iterator;
-    protected $arrTest = array();
+    protected ?JsonIterator $iterator;
+    protected array $arrTest = array();
 
     // Run before each test case
+    #[Override]
     public function setUp(): void
     {
         $this->arrTest = array();
@@ -31,6 +35,7 @@ class JsonDatasetWithFieldsTest extends TestCase
     }
 
     // Run end each test case
+    #[Override]
     public function teardown(): void
     {
         $this->iterator = null;
@@ -84,9 +89,10 @@ class JsonDatasetWithFieldsTest extends TestCase
     }
 
     /**
-     * @param RowArray $sr
+     * @param RowInterface $sr
+     * @param int $count
      */
-    public function assertSingleRow($sr, $count)
+    public function assertSingleRow(RowInterface $sr, int $count)
     {
         $this->assertEquals($this->arrTest[$count]["name"], $sr->get("name"), "Row $count: Field 'name' must be equal");
         $this->assertEquals($this->arrTest[$count]["version"], $sr->get("version"), "Row $count: Field 'version' must be equal");

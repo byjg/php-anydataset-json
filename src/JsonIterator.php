@@ -8,6 +8,7 @@ use ByJG\AnyDataset\Core\RowArray;
 use ByJG\AnyDataset\Core\RowInterface;
 use Closure;
 use InvalidArgumentException;
+use Override;
 use ReturnTypeWillChange;
 
 class JsonIterator extends GenericIterator
@@ -120,6 +121,8 @@ class JsonIterator extends GenericIterator
         return $value;
     }
 
+    #[ReturnTypeWillChange]
+    #[Override]
     public function key(): int
     {
         return $this->current["i"];
@@ -148,12 +151,14 @@ class JsonIterator extends GenericIterator
     }
 
     #[ReturnTypeWillChange]
+    #[Override]
     public function current(): ?RowInterface
     {
         return $this->current["row"] ?? $this->parseRow();
     }
 
     #[ReturnTypeWillChange]
+    #[Override]
     public function next(): void
     {
         $this->current["i"]++;
@@ -162,6 +167,7 @@ class JsonIterator extends GenericIterator
     }
 
     #[ReturnTypeWillChange]
+    #[Override]
     public function valid(): bool
     {
         return ($this->current["i"] < count($this->jsonObject));
