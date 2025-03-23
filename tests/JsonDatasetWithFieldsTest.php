@@ -44,17 +44,20 @@ class JsonDatasetWithFieldsTest extends TestCase
     public function testCreateJsonIterator()
     {
         $this->assertTrue($this->iterator instanceof IteratorInterface); //, "Resultant object must be an interator");
-        $this->assertTrue($this->iterator->hasNext()); // "hasNext() method must be true");
-        $this->assertNotEmpty($this->iterator->moveNext()); //, "Count() method must return 2");
-        $this->assertNotEmpty($this->iterator->moveNext()); //, "Count() method must return 2");
-        $this->assertEmpty($this->iterator->moveNext()); //, "Count() method must return 2");
+        $this->assertTrue($this->iterator->valid());
+        $this->assertNotEmpty($this->iterator->current());
+        $this->iterator->next();
+        $this->assertNotEmpty($this->iterator->current());
+        $this->iterator->next();
+        $this->assertEmpty($this->iterator->current());
     }
 
     public function testNavigateJsonIterator()
     {
         $count = 0;
-        while ($this->iterator->hasNext()) {
-            $this->assertSingleRow($this->iterator->moveNext(), $count++);
+        while ($this->iterator->valid()) {
+            $this->assertSingleRow($this->iterator->current(), $count++);
+            $this->iterator->next();
         }
 
         $this->assertEquals(2, $count, "Count() method must return 2");
@@ -196,10 +199,11 @@ class JsonDatasetWithFieldsTest extends TestCase
             JsonFieldDefinition::create("version", "metadata/*/version")
         ]);
 
-        $row = $iterator->moveNext();
+        $row = $iterator->current();
         $this->assertEquals('Open', $row->get("name"));
 
-        $row = $iterator->moveNext();
+        $iterator->next();
+        $row = $iterator->current();
         $this->assertEquals('none', $row->get("name"));
     }
 

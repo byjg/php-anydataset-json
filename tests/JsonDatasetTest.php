@@ -40,7 +40,7 @@ class JsonDatasetTest extends TestCase
         $jsonDataset = new JsonDataset(JsonDatasetTest::JSON_OK);
         $jsonIterator = $jsonDataset->getIterator();
 
-        $this->assertTrue($jsonIterator->hasNext()); // "hasNext() method must be true");
+        $this->assertTrue($jsonIterator->valid());
         $this->assertCount(3, $jsonIterator->toArray()); //, "Count() method must return 3");
     }
 
@@ -50,8 +50,9 @@ class JsonDatasetTest extends TestCase
         $jsonIterator = $jsonDataset->getIterator();
 
         $count = 0;
-        while ($jsonIterator->hasNext()) {
-            $this->assertSingleRow($jsonIterator->moveNext(), $count++);
+        while ($jsonIterator->valid()) {
+            $this->assertSingleRow($jsonIterator->current(), $count++);
+            $jsonIterator->next();
         }
 
         $this->assertEquals(3, $count); //, "Count() method must return 3");
