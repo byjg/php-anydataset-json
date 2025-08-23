@@ -65,9 +65,9 @@ class JsonIterator extends GenericIterator
     /**
      * Retrieve the JSON object for the current row index.
      */
-    private function getJsonObjectForCurrentRow(): array
+    private function getJsonObjectForCurrentRow(): ?array
     {
-        return $this->jsonObject[$this->currentIndex];
+        return $this->jsonObject[$this->currentIndex] ?? null;
     }
 
     /**
