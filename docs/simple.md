@@ -6,12 +6,14 @@ sidebar_position: 1
 
 This is the simplest way to manipulate a JSON file. You can read the JSON file and iterate over the rows without explicitly defining fields.
 
+:::info
+When your JSON is a simple array of objects, you can iterate directly without specifying a path or field definitions.
+:::
+
 ## Example with a Simple JSON Array
 
-When your JSON is a simple array of objects, you can iterate directly without specifying a path.
-
-example1.json:
-```json
+**example1.json:**
+```json title="example1.json"
 [
    {
       "name":"Joao",
@@ -31,10 +33,9 @@ example1.json:
 ]
 ```
 
-Here is the code:
+**PHP Code:**
 
-```php
-<?php
+```php title="example1.php"
 $json = file_get_contents('example1.json');
 
 $dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
@@ -47,14 +48,16 @@ foreach ($iterator as $row) {
 }
 ```
 
+:::tip
 In this example, it's not necessary to define the fields because the fields are defined by the JSON file itself. The iterator automatically uses the keys from each object in the array.
+:::
 
 ## Example with Nested JSON
 
-For nested JSON structures, you can specify a path to the array you want to iterate:
+For nested JSON structures, you can specify a path to the array you want to iterate.
 
-example2.json:
-```json
+**example2.json:**
+```json title="example2.json"
 {
   "users": {
     "active": [
@@ -73,8 +76,9 @@ example2.json:
 }
 ```
 
-```php
-<?php
+**PHP Code:**
+
+```php title="example2.php"
 $json = file_get_contents('example2.json');
 
 $dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
@@ -87,4 +91,6 @@ foreach ($iterator as $row) {
 }
 ```
 
-The path "users/active" tells the iterator to process the array found at that location in the JSON structure.
+:::note
+The path `"users/active"` tells the iterator to process the array found at that location in the JSON structure.
+:::

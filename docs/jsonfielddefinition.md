@@ -4,12 +4,11 @@ sidebar_position: 3
 
 # The JsonFieldDefinition
 
-The JsonFieldDefinition is a class to define the fields of a JSON file.
+The `JsonFieldDefinition` class allows you to define how fields from a JSON file should be extracted, validated, and transformed.
 
-### Creating a JsonFieldDefinition
+## Creating a JsonFieldDefinition
 
-```php
-<?php
+```php title="Basic Usage"
 use ByJG\AnyDataset\Json\JsonFieldDefinition;
 
 $fieldDefinition = JsonFieldDefinition::create('field_name', 'json_path')
@@ -18,19 +17,20 @@ $fieldDefinition = JsonFieldDefinition::create('field_name', 'json_path')
     ->ofTypeAny();
 ```
 
-- The `field_name` is the name of the field that will be used to access the value. 
-- The `json_path` is the path to the value in the JSON file. Also, it can be a closure to [create a dynamic field](dynamic-fields.md).
-- The `default_value` is the value that will be used if the field is not found in the JSON file.
-- The `required()` method will throw an exception if the field is not found, or it is null in the JSON file.
+### Parameters
 
-### The Json Path
+- **`field_name`**: The name of the field that will be used to access the value
+- **`json_path`**: The path to the value in the JSON file. It can also be a closure to [create a dynamic field](dynamic-fields.md)
+- **`default_value`**: The value that will be used if the field is not found in the JSON file
+- **`required()`**: Will throw an exception if the field is not found or is null in the JSON file
 
-The `json_path` is a string that represents the path to the value in the JSON file. 
-It defines the path to reach a specific key in the JSON file.
+## The Json Path
 
-Example:
+The `json_path` is a string that represents the path to the value in the JSON file. It defines the path to reach a specific key in the JSON file.
 
-```json
+### Example
+
+```json title="JSON Structure"
 {
   "a": {
     "b": "SVG Viewer",
@@ -41,16 +41,17 @@ Example:
 }
 ```
 
-- The path to reach the value "SVG Viewer" is `a/b`
-- The path to reach the value "Open" is `a/c/d`
+**Path Examples:**
+- The path to reach the value `"SVG Viewer"` is `a/b`
+- The path to reach the value `"Open"` is `a/c/d`
 
-### Working with Arrays
+## Working with Arrays
 
 You can use the `*` character to iterate through arrays in the JSON path.
 
-Example:
+### Example
 
-```json
+```json title="JSON with Arrays"
 {
   "items": [
     {
@@ -70,17 +71,26 @@ Example:
 }
 ```
 
-- The path to reach all "id" values is `items/*/id` (returns ["item1", "item2"])
-- The path to reach all "name" values in the first item is `items/0/values/*/name` (returns ["value1", "value2"])
-- The path to reach all "name" values in all items is `items/*/values/*/name` (returns [["value1", "value2"], ["value3"]])
+**Path Examples with Arrays:**
+| Path | Result | Description |
+|------|--------|-------------|
+| `items/*/id` | `["item1", "item2"]` | All "id" values from items array |
+| `items/0/values/*/name` | `["value1", "value2"]` | All "name" values in the first item |
+| `items/*/values/*/name` | `[["value1", "value2"], ["value3"]]` | All "name" values in all items |
 
-## Validate the data type
+## Data Type Validation
 
-These are the possible data types:
+You can validate and enforce data types for your fields using the following methods:
 
-- `ofTypeAny()` - No validation
-- `ofTypeString()` - The value must be a string
-- `ofTypeInt()` - The value must be an integer
-- `ofTypeFloat()` - The value must be a float
-- `ofTypeBool()` - The value must be a boolean
+| Method | Description | Validation |
+|--------|-------------|------------|
+| `ofTypeAny()` | No validation | Accepts any value type |
+| `ofTypeString()` | String validation | Value must be a string |
+| `ofTypeInt()` | Integer validation | Value must be an integer |
+| `ofTypeFloat()` | Float validation | Value must be a numeric value |
+| `ofTypeBool()` | Boolean validation | Value must be a boolean |
+
+:::warning
+Type validation will throw an `InvalidArgumentException` if the value doesn't match the expected type.
+:::
 

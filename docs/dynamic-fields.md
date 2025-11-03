@@ -6,12 +6,14 @@ sidebar_position: 2
 
 Dynamic fields are fields that are not defined in the dataset. They are created on the fly after reading the JSON file.
 
+:::info
 To define a dynamic field you need to use the `JsonFieldDefinition` class and the path needs to be a `\Closure`.
+:::
 
 ## Example
 
-example.json
-```json
+**example.json:**
+```json title="example.json"
 {
    "menu":{
       "header":"SVG Viewer",
@@ -44,8 +46,8 @@ example.json
 }
 ```
 
-example.php
-```php
+**example.php:**
+```php title="example.php"
 $json = file_get_contents('example.json');
 
 $dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
@@ -66,5 +68,6 @@ foreach ($iterator as $row) {
 }
 ```
 
-The closure will receive an array with all the values of the fields defined in the withFields method. 
-You can use this array to create the dynamic field.
+:::tip
+The closure will receive an array with all the values of the fields defined in the `withFields()` method. You can use this array to create the dynamic field.
+:::

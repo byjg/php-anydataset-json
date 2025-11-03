@@ -26,8 +26,8 @@ Some features:
 
 ### Basic Example
 
-example.json
-```json
+**example.json:**
+```json title="example.json"
 {
    "menu":{
       "header":"SVG Viewer",
@@ -52,8 +52,8 @@ example.json
 }
 ```
 
-example.php
-```php
+**example.php:**
+```php title="example.php"
 $json = file_get_contents('example.json');
 
 $dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
@@ -82,7 +82,7 @@ foreach ($iterator as $row) {
 
 ## Install
 
-```
+```bash
 composer require "byjg/anydataset-json"
 ```
 
