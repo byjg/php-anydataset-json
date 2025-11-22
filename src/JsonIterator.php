@@ -15,9 +15,9 @@ class JsonIterator extends GenericIterator
 {
 
     /**
-     * @var ?array
+     * @var array
      */
-    private ?array $jsonObject;
+    private array $jsonObject;
 
     private ?RowInterface $currentRow = null;
     private int $currentIndex = 0;
@@ -39,12 +39,14 @@ class JsonIterator extends GenericIterator
             return;
         }
 
-        $this->jsonObject = $this->parseField($jsonObject, explode("/", ltrim("$path/*", "/")), null);
-        if (is_null($this->jsonObject)) {
+        $parsedObject = $this->parseField($jsonObject, explode("/", ltrim("$path/*", "/")), null);
+        if (is_null($parsedObject)) {
             if ($throwErr) {
                 throw new IteratorException("Invalid path '$path' in JSON Object");
             }
             $this->jsonObject = [];
+        } else {
+            $this->jsonObject = $parsedObject;
         }
     }
 
@@ -55,6 +57,9 @@ class JsonIterator extends GenericIterator
         }
 
         $jsonObject = $this->getJsonObjectForCurrentRow();
+        if ($jsonObject === null) {
+            return null;
+        }
         $valueList = $this->parseFields($jsonObject);
 
         $row = new RowArray($valueList);
@@ -86,11 +91,15 @@ class JsonIterator extends GenericIterator
          * @var JsonFieldDefinition $value
          */
         foreach ($this->fieldDefinition as $field => $value) {
-            if ($value->getPath() instanceof Closure) {
-                $postProcessFields[$field] = $value->getPath();
+            $path = $value->getPath();
+            if ($path instanceof Closure) {
+                $postProcessFields[$field] = $path;
                 continue;
             }
-            $pathList = explode("/", ltrim($value->getPath(), "/"));
+            if ($path === null) {
+                continue;
+            }
+            $pathList = explode("/", ltrim($path, "/"));
             $valueList[$field] = $value->validate(
                 $this->parseField($jsonObject, $pathList, $value->getDefaultValue())
             );

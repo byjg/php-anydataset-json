@@ -9,9 +9,9 @@ class JsonDataset
 {
 
     /**
-     * @var array|null
+     * @var array
      */
-    private ?array $jsonObject;
+    private array $jsonObject;
 
     /**
      * JsonDataset constructor.
@@ -25,7 +25,7 @@ class JsonDataset
             return;
         }
 
-        $this->jsonObject = json_decode($json, true);
+        $decoded = json_decode($json, true);
 
         $lastError = json_last_error();
         $lastErrorDesc = match ($lastError) {
@@ -41,6 +41,8 @@ class JsonDataset
         if ($lastError != JSON_ERROR_NONE) {
             throw new DatasetException("Invalid JSON string: " . $lastErrorDesc);
         }
+
+        $this->jsonObject = $decoded ?? [];
     }
 
     /**
