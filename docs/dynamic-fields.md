@@ -1,13 +1,19 @@
+---
+sidebar_position: 2
+---
+
 # Dynamic Fields
 
-Dynamic fields are fields that are not defined in the dataset. They are created on the fly after read the JSON file.
+Dynamic fields are fields that are not defined in the dataset. They are created on the fly after reading the JSON file.
 
-To define a dynamic field you need to use the `JsonFieldDefinition` class and the json_path needs to be a \Closure.
+:::info
+To define a dynamic field you need to use the `JsonFieldDefinition` class and the path needs to be a `\Closure`.
+:::
 
 ## Example
 
-example.json
-```json
+**example.json:**
+```json title="example.json"
 {
    "menu":{
       "header":"SVG Viewer",
@@ -40,19 +46,19 @@ example.json
 }
 ```
 
-example.php
-```php
+**example.php:**
+```php title="example.php"
 $json = file_get_contents('example.json');
 
 $dataset = new \ByJG\AnyDataset\Json\JsonDataset($json);
 
 $iterator = $dataset->getIterator("/menu/items")
                         ->withFields([
-                            "name" => "id", 
-                            "version" => "metadata/*/version"
-                            "dynamic" => function($values) {
+                            \ByJG\AnyDataset\Json\JsonFieldDefinition::create("name", "id"),
+                            \ByJG\AnyDataset\Json\JsonFieldDefinition::create("version", "metadata/*/version"),
+                            \ByJG\AnyDataset\Json\JsonFieldDefinition::create("dynamic", function($values) {
                                return $values["name"] . ":" . implode(", ", $values["version"]);
-                            }
+                            })
                         ]);
 
 foreach ($iterator as $row) {
@@ -62,5 +68,6 @@ foreach ($iterator as $row) {
 }
 ```
 
-The closure will receive an array with all the values of the fields defined in the json_path. 
-You can use this array to create the dynamic field.
+:::tip
+The closure will receive an array with all the values of the fields defined in the `withFields()` method. You can use this array to create the dynamic field.
+:::

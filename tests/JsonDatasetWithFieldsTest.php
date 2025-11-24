@@ -3,9 +3,13 @@
 namespace Tests;
 
 use ByJG\AnyDataset\Core\IteratorInterface;
+use ByJG\AnyDataset\Core\RowArray;
+use ByJG\AnyDataset\Core\RowInterface;
 use ByJG\AnyDataset\Json\JsonDataset;
 use ByJG\AnyDataset\Core\Row;
 use ByJG\AnyDataset\Json\JsonFieldDefinition;
+use ByJG\AnyDataset\Json\JsonIterator;
+use Override;
 use PHPUnit\Framework\TestCase;
 
 class JsonDatasetWithFieldsTest extends TestCase
@@ -13,10 +17,11 @@ class JsonDatasetWithFieldsTest extends TestCase
 
     const JSON_OK = '{"menu": {"header": "SVG Viewer", "items": [ {"id": "Open", "metadata": {"version": "1", "date": "NA"} }, {"id": "OpenNew", "label": "Open New", "metadata": {"version": "2", "date": "2021-10-01"}} ]}}';
 
-    protected $iterator;
-    protected $arrTest = array();
+    protected ?JsonIterator $iterator;
+    protected array $arrTest = array();
 
     // Run before each test case
+    #[Override]
     public function setUp(): void
     {
         $this->arrTest = array();
@@ -30,29 +35,35 @@ class JsonDatasetWithFieldsTest extends TestCase
     }
 
     // Run end each test case
+    #[Override]
     public function teardown(): void
     {
         $this->iterator = null;
     }
 
-    public function testcreateJsonIterator()
+    public function testCreateJsonIterator()
     {
         $this->assertTrue($this->iterator instanceof IteratorInterface); //, "Resultant object must be an interator");
-        $this->assertTrue($this->iterator->hasNext()); // "hasNext() method must be true");
-        $this->assertEquals(2, $this->iterator->Count()); //, "Count() method must return 2");
+        $this->assertTrue($this->iterator->valid());
+        $this->assertNotEmpty($this->iterator->current());
+        $this->iterator->next();
+        $this->assertNotEmpty($this->iterator->current());
+        $this->iterator->next();
+        $this->assertEmpty($this->iterator->current());
     }
 
-    public function testnavigateJsonIterator()
+    public function testNavigateJsonIterator()
     {
         $count = 0;
-        while ($this->iterator->hasNext()) {
-            $this->assertSingleRow($this->iterator->moveNext(), $count++);
+        while ($this->iterator->valid()) {
+            $this->assertSingleRow($this->iterator->current(), $count++);
+            $this->iterator->next();
         }
 
-        $this->assertEquals(2, $this->iterator->count(), "Count() method must return 2");
+        $this->assertEquals(2, $count, "Count() method must return 2");
     }
 
-    public function testnavigateJsonIterator2()
+    public function testNavigateJsonIterator2()
     {
         $this->assertEquals($this->arrTest, $this->iterator->toArray());
     }
@@ -81,12 +92,13 @@ class JsonDatasetWithFieldsTest extends TestCase
     }
 
     /**
-     * @param Row $sr
+     * @param RowInterface $sr
+     * @param int $count
      */
-    public function assertSingleRow($sr, $count)
+    public function assertSingleRow(RowInterface $sr, int $count)
     {
-        $this->assertEquals($sr->get("name"), $this->arrTest[$count]["name"]);
-        $this->assertEquals($sr->get("version"), $this->arrTest[$count]["version"]);
+        $this->assertEquals($this->arrTest[$count]["name"], $sr->get("name"), "Row $count: Field 'name' must be equal");
+        $this->assertEquals($this->arrTest[$count]["version"], $sr->get("version"), "Row $count: Field 'version' must be equal");
     }
 
 
@@ -99,12 +111,12 @@ class JsonDatasetWithFieldsTest extends TestCase
             JsonFieldDefinition::create("version", "metadata/*/version")
         ]);
 
-        $iterator->moveNext();
+        $iterator->current();
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Field 'name' is required");
 
-        $iterator->moveNext();
+        $iterator->next();
     }
 
     public function testRequiredArray()
@@ -116,12 +128,12 @@ class JsonDatasetWithFieldsTest extends TestCase
             JsonFieldDefinition::create("version", "metadata/*/version")->required()
         ]);
 
-        $iterator->moveNext();
+        $iterator->current();
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Field 'version' is required");
 
-        $iterator->moveNext();
+        $iterator->next();
     }
 
     public function testInteger()
@@ -133,13 +145,13 @@ class JsonDatasetWithFieldsTest extends TestCase
             JsonFieldDefinition::create("version", "metadata/*/version")
         ]);
 
-        $row = $iterator->moveNext();
+        $row = $iterator->current();
         $this->assertSame(1001, $row->get("name"));
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Field 'name' must be an integer");
 
-        $iterator->moveNext();
+        $iterator->next();
     }
 
     public function testFloat()
@@ -151,13 +163,13 @@ class JsonDatasetWithFieldsTest extends TestCase
             JsonFieldDefinition::create("version", "metadata/*/version")
         ]);
 
-        $row = $iterator->moveNext();
+        $row = $iterator->current();
         $this->assertSame(1001.34, $row->get("name"));
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Field 'name' must be a number");
 
-        $row = $iterator->moveNext();
+        $iterator->next();
     }
 
     public function testBool()
@@ -169,13 +181,13 @@ class JsonDatasetWithFieldsTest extends TestCase
             JsonFieldDefinition::create("version", "metadata/*/version")
         ]);
 
-        $row = $iterator->moveNext();
+        $row = $iterator->current();
         $this->assertTrue($row->get("name"));
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Field 'name' must be a boolean");
 
-        $iterator->moveNext();
+        $iterator->next();
     }
 
     public function testDefault()
@@ -187,10 +199,11 @@ class JsonDatasetWithFieldsTest extends TestCase
             JsonFieldDefinition::create("version", "metadata/*/version")
         ]);
 
-        $row = $iterator->moveNext();
+        $row = $iterator->current();
         $this->assertEquals('Open', $row->get("name"));
 
-        $row = $iterator->moveNext();
+        $iterator->next();
+        $row = $iterator->current();
         $this->assertEquals('none', $row->get("name"));
     }
 

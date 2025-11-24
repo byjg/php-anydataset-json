@@ -5,8 +5,10 @@ namespace Tests;
 use ByJG\AnyDataset\Core\Exception\DatasetException;
 use ByJG\AnyDataset\Core\Exception\IteratorException;
 use ByJG\AnyDataset\Core\IteratorInterface;
+use ByJG\AnyDataset\Core\RowInterface;
 use ByJG\AnyDataset\Json\JsonDataset;
 use ByJG\AnyDataset\Core\Row;
+use Override;
 use PHPUnit\Framework\TestCase;
 
 class JsonDatasetTest extends TestCase
@@ -16,10 +18,11 @@ class JsonDatasetTest extends TestCase
     const JSON_NOTOK = '"name":"Joao","surname":"Magalhaes","age":"38"}]';
     const JSON_OK2 = '{"menu": {"header": "SVG Viewer", "items": [ {"id": "Open"}, {"id": "OpenNew", "label": "Open New"} ]}}';
 
-    protected $arrTest = array();
-    protected $arrTest2 = array();
+    protected array $arrTest = array();
+    protected array $arrTest2 = array();
 
     // Run before each test case
+    #[Override]
     public function setUp(): void
     {
         $this->arrTest = array();
@@ -37,9 +40,8 @@ class JsonDatasetTest extends TestCase
         $jsonDataset = new JsonDataset(JsonDatasetTest::JSON_OK);
         $jsonIterator = $jsonDataset->getIterator();
 
-        $this->assertTrue($jsonIterator instanceof IteratorInterface); //, "Resultant object must be an interator");
-        $this->assertTrue($jsonIterator->hasNext()); // "hasNext() method must be true");
-        $this->assertEquals($jsonIterator->Count(), 3); //, "Count() method must return 3");
+        $this->assertTrue($jsonIterator->valid());
+        $this->assertCount(3, $jsonIterator->toArray()); //, "Count() method must return 3");
     }
 
     public function testnavigateJsonIterator()
@@ -48,11 +50,12 @@ class JsonDatasetTest extends TestCase
         $jsonIterator = $jsonDataset->getIterator();
 
         $count = 0;
-        while ($jsonIterator->hasNext()) {
-            $this->assertSingleRow($jsonIterator->moveNext(), $count++);
+        while ($jsonIterator->valid()) {
+            $this->assertSingleRow($jsonIterator->current(), $count++);
+            $jsonIterator->next();
         }
 
-        $this->assertEquals($jsonIterator->count(), 3); //, "Count() method must return 3");
+        $this->assertEquals(3, $count); //, "Count() method must return 3");
     }
 
     public function testnavigateJsonIterator2()
@@ -65,7 +68,7 @@ class JsonDatasetTest extends TestCase
             $this->assertSingleRow($sr, $count++);
         }
 
-        $this->assertEquals($jsonIterator->count(), 3); //, "Count() method must return 3");
+        $this->assertEquals(3, $count); //, "Count() method must return 3");
     }
 
     public function testjsonNotWellFormatted()
@@ -84,7 +87,7 @@ class JsonDatasetTest extends TestCase
             $this->assertSingleRow2($sr, $count++);
         }
 
-        $this->assertEquals($jsonIterator->count(), 2); //, "Count() method must return 3");
+        $this->assertEquals(2, $count); //, "Count() method must return 3");
     }
 
     public function testnavigateJSONComplexIterator()
@@ -102,7 +105,7 @@ class JsonDatasetTest extends TestCase
         $jsonDataset = new JsonDataset(JsonDatasetTest::JSON_OK2);
         $jsonIterator = $jsonDataset->getIterator("/menu/wrong");
 
-        $this->assertEquals($jsonIterator->count(), 0); //, "Without throw error");
+        $this->assertEquals([], $jsonIterator->toArray()); //, "Without throw error");
     }
 
     public function testnavigateJSONComplexIteratorWrongPath2()
@@ -113,10 +116,10 @@ class JsonDatasetTest extends TestCase
     }
 
     /**
-
-     * @param Row $sr
+     * @param RowInterface $sr
+     * @param int $count
      */
-    public function assertSingleRow($sr, $count)
+    public function assertSingleRow(RowInterface $sr, int $count)
     {
         $this->assertEquals($sr->get("name"), $this->arrTest[$count]["name"]);
         $this->assertEquals($sr->get("surname"), $this->arrTest[$count]["surname"]);
@@ -124,10 +127,10 @@ class JsonDatasetTest extends TestCase
     }
 
     /**
-     * @param Row $sr
-     * @param $count
+     * @param RowInterface $sr
+     * @param int $count
      */
-    public function assertSingleRow2($sr, $count)
+    public function assertSingleRow2(RowInterface $sr, int $count)
     {
         $this->assertEquals($sr->get("id"), $this->arrTest2[$count]["id"]);
         if ($count > 0) $this->assertEquals($sr->get("label"), $this->arrTest2[$count]["label"]);

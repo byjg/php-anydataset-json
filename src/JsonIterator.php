@@ -4,23 +4,23 @@ namespace ByJG\AnyDataset\Json;
 
 use ByJG\AnyDataset\Core\Exception\IteratorException;
 use ByJG\AnyDataset\Core\GenericIterator;
-use ByJG\AnyDataset\Core\Row;
+use ByJG\AnyDataset\Core\RowArray;
+use ByJG\AnyDataset\Core\RowInterface;
+use Closure;
 use InvalidArgumentException;
+use Override;
+use ReturnTypeWillChange;
 
 class JsonIterator extends GenericIterator
 {
 
     /**
-     * @var ?array
+     * @var array
      */
-    private ?array $jsonObject;
+    private array $jsonObject;
 
-    /**
-     * Enter description here...
-     *
-     * @var int
-     */
-    private int $current = 0;
+    private ?RowInterface $currentRow = null;
+    private int $currentIndex = 0;
 
     private array $fieldDefinition = [];
 
@@ -34,53 +34,50 @@ class JsonIterator extends GenericIterator
      */
     public function __construct(array $jsonObject, string $path = "", bool $throwErr = false)
     {
-        $this->current = 0;
-
         if (empty($path)) {
             $this->jsonObject = $jsonObject;
             return;
         }
 
-        $this->jsonObject = $this->parseField($jsonObject, explode("/", ltrim("$path/*", "/")), null);
-        if (is_null($this->jsonObject)) {
+        $parsedObject = $this->parseField($jsonObject, explode("/", ltrim("$path/*", "/")), null);
+        if (is_null($parsedObject)) {
             if ($throwErr) {
                 throw new IteratorException("Invalid path '$path' in JSON Object");
             }
             $this->jsonObject = [];
+        } else {
+            $this->jsonObject = $parsedObject;
         }
     }
 
-    public function count(): int
+    private function parseRow(): ?RowInterface
     {
-        return (count($this->jsonObject));
-    }
-
-    /**
-     * @access public
-     * @return bool
-     */
-    public function hasNext(): bool
-    {
-        if ($this->current < $this->count()) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @access public
-     * @return Row|null
-     */
-    public function moveNext(): ?Row
-    {
-        if (!$this->hasNext()) {
+        if (!$this->valid()) {
             return null;
         }
 
-        return new Row($this->parseFields($this->jsonObject[$this->current++]));
+        $jsonObject = $this->getJsonObjectForCurrentRow();
+        if ($jsonObject === null) {
+            return null;
+        }
+        $valueList = $this->parseFields($jsonObject);
+
+        $row = new RowArray($valueList);
+        $this->currentRow = $row;
+        return $row;
     }
 
+    /**
+     * Retrieve the JSON object for the current row index.
+     */
+    private function getJsonObjectForCurrentRow(): ?array
+    {
+        return $this->jsonObject[$this->currentIndex] ?? null;
+    }
+
+    /**
+     * Parse the fields of the given JSON object based on field definitions, including post-processing.
+     */
     private function parseFields(array $jsonObject): array
     {
         if (empty($this->fieldDefinition)) {
@@ -94,12 +91,18 @@ class JsonIterator extends GenericIterator
          * @var JsonFieldDefinition $value
          */
         foreach ($this->fieldDefinition as $field => $value) {
-            if ($value->getPath() instanceof \Closure) {
-                $postProcessFields[$field] = $value->getPath();
+            $path = $value->getPath();
+            if ($path instanceof Closure) {
+                $postProcessFields[$field] = $path;
                 continue;
             }
-            $pathList = explode("/", ltrim($value->getPath(), "/"));
-            $valueList[$field] = $value->validate($this->parseField($jsonObject, $pathList, $value->getDefaultValue()));
+            if ($path === null) {
+                continue;
+            }
+            $pathList = explode("/", ltrim($path, "/"));
+            $valueList[$field] = $value->validate(
+                $this->parseField($jsonObject, $pathList, $value->getDefaultValue())
+            );
         }
 
         foreach ($postProcessFields as $field => $callback) {
@@ -134,13 +137,11 @@ class JsonIterator extends GenericIterator
         return $value;
     }
 
-    protected function validateValueAgainstFieldDefinition($value, $fieldDefinition)
-    {
-    }
-
+    #[ReturnTypeWillChange]
+    #[Override]
     public function key(): int
     {
-        return $this->current;
+        return $this->currentIndex;
     }
 
     /**
@@ -163,5 +164,30 @@ class JsonIterator extends GenericIterator
             $this->fieldDefinition[$field] = $value;
         }
         return $this;
+    }
+
+    #[ReturnTypeWillChange]
+    #[Override]
+    public function current(): ?RowInterface
+    {
+        return $this->currentRow ?? $this->parseRow();
+    }
+
+    #[ReturnTypeWillChange]
+    #[Override]
+    public function next(): void
+    {
+        $this->currentIndex++;
+        $this->currentRow = null;
+        // Eagerly parse the next row to trigger validation and potential exceptions
+        // so that errors are raised at iteration time (as tests expect).
+        $this->parseRow();
+    }
+
+    #[ReturnTypeWillChange]
+    #[Override]
+    public function valid(): bool
+    {
+        return ($this->currentIndex < count($this->jsonObject));
     }
 }
