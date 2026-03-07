@@ -1,4 +1,10 @@
+---
+tags: [php, anydataset]
+---
+
 # JSON Dataset Abstraction
+
+JSON abstraction dataset. Anydataset is an agnostic data source abstraction layer in PHP.
 
 [![Sponsor](https://img.shields.io/badge/Sponsor-%23ea4aaa?logo=githubsponsors&logoColor=white&labelColor=0d1117)](https://github.com/sponsors/byjg)
 [![Build Status](https://github.com/byjg/php-anydataset-json/actions/workflows/phpunit.yml/badge.svg?branch=master)](https://github.com/byjg/php-anydataset-json/actions/workflows/phpunit.yml)
@@ -6,8 +12,6 @@
 [![GitHub source](https://img.shields.io/badge/Github-source-informational?logo=github)](https://github.com/byjg/php-anydataset-json/)
 [![GitHub license](https://img.shields.io/github/license/byjg/php-anydataset-json.svg)](https://opensource.byjg.com/opensource/licensing.html)
 [![GitHub release](https://img.shields.io/github/release/byjg/php-anydataset-json.svg)](https://github.com/byjg/uri/releases/)
-
-JSON abstraction dataset. Anydataset is an agnostic data source abstraction layer in PHP. 
 
 See more about Anydataset [here](https://opensource.byjg.com/anydataset).
 
@@ -76,9 +80,9 @@ foreach ($iterator as $row) {
 
 ## Features
 
-- [Simple Manipulation](docs/simple.md)
-- [Creating dynamic fields](docs/dynamic-fields.md)
-- [The JsonFieldDefinition](docs/jsonfielddefinition.md)
+- [Simple Manipulation](simple)
+- [Creating dynamic fields](dynamic-fields)
+- [The JsonFieldDefinition](jsonfielddefinition)
 
 
 ## Install
