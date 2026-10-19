@@ -14,6 +14,46 @@ pure (non-backed) enum, so any code that names a case (or reads `->name`) has to
 |---|---|---|
 | `JsonFieldDefinitionEnum` | `STRING`, `INT`, `FLOAT`, `BOOL`, `ANY` | `String`, `Int`, `Float`, `Bool`, `Any` |
 
+### `ofTypeInt()` validates the whole value
+
+The integer check now uses `FILTER_VALIDATE_INT` instead of `intval()`. Values that used to be
+silently truncated are now rejected with `Field '...' must be an integer`:
+
+| Value | Before (6.x) | After (7.0) |
+|---|---|---|
+| `"12abc"` | `12` | rejected |
+| `"1.9"`, `1.9` | `1` | rejected |
+| `true` | `1` | rejected |
+
+A whole-number string with leading zeros or surrounding spaces (`"012"`, `" 12"`) is still
+accepted and read as decimal, as before.
+
+### `getDefaultValue()` returns `mixed`
+
+`JsonFieldDefinition::getDefaultValue()` returned `?string` and the default value was stored as a
+string, so `withDefaultValue(0)` became `"0"`. The default now keeps its type and the getter is
+declared `mixed`. Code that relied on always getting a string back must cast it.
+
+## Bug Fixes
+
+### `ofTypeInt()` rejected zero
+
+`!intval($value)` treated `0` and `"0"` as "not an integer", so a field holding zero could not be
+read with `ofTypeInt()`. They are now valid (see the Breaking Changes entry for what the stricter
+check rejects).
+
+### Typed fields could not be optional
+
+A missing field arrives as its default value, `null` when none was set. `null` then failed every
+type check, so `ofTypeInt()`, `ofTypeFloat()`, `ofTypeBool()` and `ofTypeString()` behaved as if
+the field were required, with a misleading type error. A `null` value of a field that is not
+`required()` is now returned as `null` without the type check.
+
+### Default value converted to a string
+
+`withDefaultValue(0)` and `withDefaultValue(false)` were stored as `"0"` and `""`, which then failed
+`ofTypeInt()` and `ofTypeBool()` on a missing field. The default now keeps its type.
+
 ## Requirements
 
 - PHP 8.3, 8.4, 8.5 and 8.6 are now supported: `"php": ">=8.3 <8.7"`.

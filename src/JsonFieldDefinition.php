@@ -13,8 +13,8 @@ class JsonFieldDefinition
     /** @var bool $required */
     protected bool $required = false;
 
-    /** @var string|null $defaultValue */
-    protected ?string $defaultValue = null;
+    /** @var mixed $defaultValue */
+    protected mixed $defaultValue = null;
 
     /** @var JsonFieldDefinitionEnum $type */
     protected JsonFieldDefinitionEnum $type;
@@ -51,7 +51,7 @@ class JsonFieldDefinition
         return $this->required;
     }
 
-    public function getDefaultValue(): ?string
+    public function getDefaultValue(): mixed
     {
         return $this->defaultValue;
     }
@@ -79,7 +79,7 @@ class JsonFieldDefinition
         return $this;
     }
 
-    public function withDefaultValue($defaultValue): self
+    public function withDefaultValue(mixed $defaultValue): self
     {
         $this->defaultValue = $defaultValue;
         return $this;
@@ -125,11 +125,22 @@ class JsonFieldDefinition
             throw new InvalidArgumentException("Field '{$this->getFieldName()}' is required");
         }
 
+        // An optional field that is absent (and has no default) has no type to check
+        if (is_null($value)) {
+            return null;
+        }
+
         if ($this->getType() == JsonFieldDefinitionEnum::Int) {
-            if (!intval($value)) {
+            // A decimal string may have leading zeros ("012" is 12, never octal), which
+            // FILTER_VALIDATE_INT rejects, so they are dropped before the check
+            if (is_string($value) && preg_match('/^([+-]?)0*(\d+)$/', trim($value), $matches) === 1) {
+                $value = $matches[1] . $matches[2];
+            }
+            $intValue = is_bool($value) ? false : filter_var($value, FILTER_VALIDATE_INT);
+            if ($intValue === false) {
                 throw new InvalidArgumentException("Field '{$this->getFieldName()}' must be an integer");
             } else {
-                $value = intval($value);
+                $value = $intValue;
             }
         } elseif ($this->getType() == JsonFieldDefinitionEnum::Float) {
             if (!is_numeric($value)) {
