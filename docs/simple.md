@@ -94,3 +94,10 @@ foreach ($iterator as $row) {
 :::note
 The path `"users/active"` tells the iterator to process the array found at that location in the JSON structure.
 :::
+
+## Constructor and iterator options
+
+- `new JsonDataset(array|string $json)` accepts a JSON string or an already decoded array.
+  An invalid JSON string throws `ByJG\AnyDataset\Core\Exception\DatasetException`.
+- `getIterator(string $path = "", bool $throwErr = false)`: when the path does not exist the
+  iterator is empty; pass `$throwErr = true` to throw an `IteratorException` instead.
