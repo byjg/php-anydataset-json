@@ -5,7 +5,7 @@ tags: [php, anydataset]
 
 # JSON Dataset Abstraction
 
-JSON abstraction dataset. Anydataset is an agnostic data source abstraction layer in PHP. 
+Read a JSON document as a table: point at a path, declare the fields, iterate the rows.
 
 [![Sponsor](https://img.shields.io/badge/Sponsor-%23ea4aaa?logo=githubsponsors&logoColor=white&labelColor=0d1117)](https://github.com/sponsors/byjg)
 [![Build Status](https://github.com/byjg/php-anydataset-json/actions/workflows/phpunit.yml/badge.svg?branch=master)](https://github.com/byjg/php-anydataset-json/actions/workflows/phpunit.yml)
@@ -16,6 +16,28 @@ JSON abstraction dataset. Anydataset is an agnostic data source abstraction laye
 [![GitHub release](https://img.shields.io/github/release/byjg/php-anydataset-json.svg)](https://github.com/byjg/php-anydataset-json/releases/)
 
 See more about Anydataset [here](https://opensource.byjg.com/anydataset).
+
+## Why
+
+`json_decode()` gives you nested arrays, and every consumer then writes its own loops,
+`isset()` checks and casts to reach the data. When the JSON comes from an API, the shape
+you depend on is scattered across that code.
+
+JsonDataset declares it in one place. Point at the list with a path, declare each field
+with its path, type and whether it is required, and read rows:
+
+```php
+$iterator = (new JsonDataset($json))
+    ->getIterator('/menu/items')
+    ->withFields([
+        JsonFieldDefinition::create('name', 'id'),
+        JsonFieldDefinition::create('version', 'metadata/version')->required()->ofTypeString(),
+    ]);
+```
+
+The result is the same iterator of rows as every other
+[AnyDataset](https://opensource.byjg.com/anydataset) source, so the code that reads it does
+not care that the data was JSON.
 
 ## Concept
 
