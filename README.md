@@ -1,5 +1,6 @@
 ---
 sidebar_key: anydataset-json
+sidebar_category: data-access
 tags: [php, anydataset]
 ---
 
