@@ -34,6 +34,16 @@ accepted and read as decimal, as before.
 string, so `withDefaultValue(0)` became `"0"`. The default now keeps its type and the getter is
 declared `mixed`. Code that relied on always getting a string back must cast it.
 
+### `JsonIterator` is generator based
+
+`JsonIterator` follows byjg/anydataset 7.0 `GenericIterator` (`IteratorAggregate`, forward only, a static
+`rows()`; see its changelog).
+
+- The field definitions are taken when the iteration starts (at the first row read): call `withFields()`
+  before reading the rows, as the documentation shows. A `withFields()` after that has no effect on that
+  iterator.
+- A JSON object at the root (keys, not a list) yields its values as rows; before, it gave `null` rows.
+
 ## Bug Fixes
 
 ### `ofTypeInt()` rejected zero
